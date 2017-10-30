@@ -92,7 +92,7 @@ if (isset($_GET["feature"])) {
             #shell-input {
                 display: flex;
                 box-shadow: 0 -1px 0 rgba(0, 0, 0, .3);
-                border-top: rgba(255, 255, 355, .05) solid 1px;
+                border-top: rgba(255, 255, 255, .05) solid 1px;
             }
 
             #shell-input > label {
