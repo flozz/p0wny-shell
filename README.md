@@ -18,5 +18,6 @@ p0wny@shell:~# is a very basic, single-file, PHP shell. It can be used to quickl
   * ES5 compatibility (@lo00l #1)
   * Dependency to JQuery removed (@lo00l #1)
   * Command history using arrow keys (@lo00l #1)
+  * Keep the command field focused when pressing the tab key
 * **2017-10-30:** CSS: invalid color fixed
 * **2016-11-10:** Initial release
