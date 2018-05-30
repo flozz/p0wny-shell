@@ -113,6 +113,7 @@ if (isset($_GET["feature"])) {
                 color: #eee;
                 font-family: monospace;
                 font-size: 10pt;
+                outline: none;
             }
         </style>
 
