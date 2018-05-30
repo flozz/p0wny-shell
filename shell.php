@@ -208,6 +208,9 @@ if (isset($_GET["feature"])) {
                             eShellCmdInput.value = commandHistory[historyPosition];
                         }
                         break;
+                    case "Tab":
+                        event.preventDefault();
+                        break;
                 }
             }
 
