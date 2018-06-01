@@ -5,6 +5,7 @@ p0wny@shell:~# is a very basic, single-file, PHP shell. It can be used to quickl
 **Features:**
 
 * Command history (using arrow keys `↑` `↓`)
+* Auto-completion of command and file names (using `Tab` key)
 * Navigate on the remote file-system (using `cd` command),
 
 **WARNING:** THIS SCRIPT IS A SECURITY HOLE. **DO NOT** UPLOAD IT ON A SERVER UNTIL YOU KNOW WHAT YOU ARE DOING!
@@ -14,6 +15,10 @@ p0wny@shell:~# is a very basic, single-file, PHP shell. It can be used to quickl
 
 ## Changelog
 
+* **2018-06-01:**
+  * Auto-completion of command and file names (@lo001 #2)
+  * Adaptation to mobile devices (responsive) (@lo001 #2)
+  * Improved handling of stderr (@lo001 #2)
 * **2018-05-30:**
   * ES5 compatibility (@lo00l #1)
   * Dependency to JQuery removed (@lo00l #1)
