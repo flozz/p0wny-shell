@@ -111,6 +111,8 @@ if (isset($_GET["feature"])) {
 
                 html, body, #shell {
                     height: 100%;
+                    width: 100%;
+                    max-width: none;
                 }
 
                 #shell {
@@ -163,6 +165,10 @@ if (isset($_GET["feature"])) {
                 flex-grow: 1;
                 align-items: stretch;
             }
+
+            #shell-input input {
+                outline: none;
+            }
         </style>
 
         <script>
@@ -192,6 +198,41 @@ if (isset($_GET["feature"])) {
                     _insertStdout(response.stdout.join("\n"));
                     updateCwd(response.cwd);
                 });
+            }
+
+            function featureHint() {
+                if (eShellCmdInput.value.trim().length === 0) return;  // field is empty -> nothing to complete
+
+                function _requestCallback(data) {
+                    if (data.files.length <= 1) return;  // no completion
+
+                    if (data.files.length === 2) {
+                        if (type === 'cmd') {
+                            eShellCmdInput.value = data.files[0];
+                        } else {
+                            var currentValue = eShellCmdInput.value;
+                            eShellCmdInput.value = currentValue.replace(/([^\s]*)$/, data.files[0]);
+                        }
+                    } else {
+                        _insertCommand(eShellCmdInput.value);
+                        _insertStdout(data.files.join("\n"));
+                    }
+                }
+
+                var currentCmd = eShellCmdInput.value.split(" ");
+                var type = (currentCmd.length === 1) ? "cmd" : "file";
+                var fileName = (type === "cmd") ? currentCmd[0] : currentCmd[currentCmd.length - 1];
+
+                makeRequest(
+                    "?feature=hint",
+                    {
+                        filename: fileName,
+                        cwd: CWD,
+                        type: type
+                    },
+                    _requestCallback
+                );
+
             }
 
             function genPrompt(cwd) {
@@ -259,49 +300,7 @@ if (isset($_GET["feature"])) {
                         break;
                     case 'Tab':
                         event.preventDefault();
-                        var currentCmd = eShellCmdInput.value.split(' ');
-                        if (currentCmd.length > 0) {
-                            if (currentCmd.length === 1) {
-                                makeRequest(
-                                    '?feature=hint',
-                                    {
-                                        filename: currentCmd[0],
-                                        cwd: CWD,
-                                        type: 'cmd'
-                                    },
-                                    function(data) {
-                                        if (data.files.length > 1) {
-                                            if (data.files.length === 2) {
-                                                eShellCmdInput.value = data.files[0];
-                                            } else {
-                                                _insertCommand(eShellCmdInput.value);
-                                                _insertStdout(data.files.join('\n'));
-                                            }
-                                        }
-                                    }
-                                );
-                            } else {
-                                makeRequest(
-                                    '?feature=hint',
-                                    {
-                                        filename: currentCmd[currentCmd.length - 1],
-                                        cwd: CWD,
-                                        type: 'file'
-                                    },
-                                    function(data) {
-                                        if (data.files.length > 1) {
-                                            if (data.files.length === 2) {
-                                                currentCmd[currentCmd.length - 1] = data.files[0];
-                                                eShellCmdInput.value = currentCmd.join(' ');
-                                            } else {
-                                                _insertCommand(eShellCmdInput.value);
-                                                _insertStdout(data.files.join('\n'));
-                                            }
-                                        }
-                                    }
-                                );
-                            }
-                        }
+                        featureHint();
                         break;
                 }
             }
