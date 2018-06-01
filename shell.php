@@ -164,7 +164,6 @@ if (isset($_GET["feature"])) {
             #shell-input div {
                 flex-grow: 1;
                 align-items: stretch;
-                outline: none;
             }
 
             #shell-input input {
