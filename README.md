@@ -6,7 +6,9 @@ p0wny@shell:~# is a very basic, single-file, PHP shell. It can be used to quickl
 
 * Command history (using arrow keys `↑` `↓`)
 * Auto-completion of command and file names (using `Tab` key)
-* Navigate on the remote file-system (using `cd` command),
+* Navigate on the remote file-system (using `cd` command)
+* Upload a fite to the server (usig `upload <destination_file_name>` command)
+* Download a file from the server (using `download <file_name>` command)
 
 **WARNING:** THIS SCRIPT IS A SECURITY HOLE. **DO NOT** UPLOAD IT ON A SERVER UNTIL YOU KNOW WHAT YOU ARE DOING!
 
@@ -15,6 +17,7 @@ p0wny@shell:~# is a very basic, single-file, PHP shell. It can be used to quickl
 
 ## Changelog
 
+* **2018-12-15**: File upload and download feature (@Oshawk #5)
 * **2018-06-01:**
   * Auto-completion of command and file names (@lo001 #2)
   * Adaptation to mobile devices (responsive) (@lo001 #2)
