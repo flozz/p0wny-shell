@@ -17,7 +17,8 @@ p0wny@shell:~# is a very basic, single-file, PHP shell. It can be used to quickl
 
 ## Changelog
 
-* **2018-12-15**: File upload and download feature (@Oshawk #5)
+* **2019-06-07:** Adds the `clear` command to clear the terminal (@izharaazmi #12)
+* **2018-12-15:** File upload and download feature (@Oshawk #5)
 * **2018-06-01:**
   * Auto-completion of command and file names (@lo001 #2)
   * Adaptation to mobile devices (responsive) (@lo001 #2)
