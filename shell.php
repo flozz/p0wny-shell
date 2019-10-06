@@ -439,7 +439,7 @@ if (isset($_GET["feature"])) {
     <body>
         <div id="shell">
             <pre id="shell-content">
-                <div id="shell-logo">
+                <div id="shell-logo"> //The big title
         ___                         ____      _          _ _        _  _   <span></span>
  _ __  / _ \__      ___ __  _   _  / __ \ ___| |__   ___| | |_ /\/|| || |_ <span></span>
 | '_ \| | | \ \ /\ / / '_ \| | | |/ / _` / __| '_ \ / _ \ | (_)/\/_  ..  _|<span></span>
