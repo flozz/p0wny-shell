@@ -15,6 +15,12 @@ p0wny@shell:~# is a very basic, single-file, PHP shell. It can be used to quickl
 ![Screenshot](./screenshot.png)
 
 
+**Demo with Docker:**
+
+        docker build -t p0wny .
+        docker run -it -p 8080:80 -d p0wny
+        # open with your browser http://127.0.0.1:8080/shell.php
+
 ## Changelog
 
 * **2019-06-07:** Adds the `clear` command to clear the terminal (@izharaazmi #12)
