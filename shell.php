@@ -427,6 +427,13 @@ if (isset($_GET["feature"])) {
                 xhr.send(getQueryString());
             }
 
+            function focusShellCmd() {
+                var selection = window.getSelection();
+                if(!selection.toString()) {
+                    document.getElementById('shell-cmd').focus();
+                }
+            }
+
             window.onload = function() {
                 eShellCmdInput = document.getElementById("shell-cmd");
                 eShellContent = document.getElementById("shell-content");
@@ -436,7 +443,7 @@ if (isset($_GET["feature"])) {
         </script>
     </head>
 
-    <body>
+    <body onclick="focusShellCmd();">
         <div id="shell">
             <pre id="shell-content">
                 <div id="shell-logo">
