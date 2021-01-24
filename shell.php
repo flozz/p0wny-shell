@@ -254,6 +254,10 @@ if (isset($_GET["feature"])) {
                 eShellContent.scrollTop = eShellContent.scrollHeight;
             }
 
+            function _defer(callback) {
+                setTimeout(callback, 0);
+            }
+
             function featureShell(command) {
 
                 _insertCommand(command);
@@ -395,8 +399,10 @@ if (isset($_GET["feature"])) {
                         if (historyPosition > 0) {
                             historyPosition--;
                             eShellCmdInput.blur();
-                            eShellCmdInput.focus();
                             eShellCmdInput.value = commandHistory[historyPosition];
+                            _defer(function() {
+                                eShellCmdInput.focus();
+                            });
                         }
                         break;
                     case "ArrowDown":
