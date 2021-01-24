@@ -119,6 +119,22 @@ if (isset($_GET["feature"])) {
                 font-family: monospace;
             }
 
+            *::-webkit-scrollbar-track {
+                border-radius: 8px;
+                background-color: #353535;
+            }
+
+            *::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+
+            *::-webkit-scrollbar-thumb {
+                border-radius: 8px;
+                -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+                background-color: #bcbcbc;
+            }
+
             #shell {
                 background: #222;
                 max-width: 800px;
