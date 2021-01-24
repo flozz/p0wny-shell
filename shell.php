@@ -162,7 +162,8 @@ if (isset($_GET["feature"])) {
 
             @media (max-width: 991px) {
                 #shell-logo {
-                    display: none;
+                    font-size: 6px;
+                    margin: -25px 0;
                 }
 
                 html, body, #shell {
@@ -179,6 +180,12 @@ if (isset($_GET["feature"])) {
             @media (max-width: 767px) {
                 #shell-input {
                     flex-direction: column;
+                }
+            }
+
+            @media (max-width: 320px) {
+                #shell-logo {
+                    font-size: 5px;
                 }
             }
 
