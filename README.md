@@ -7,13 +7,19 @@ p0wny@shell:~# is a very basic, single-file, PHP shell. It can be used to quickl
 * Command history (using arrow keys `↑` `↓`)
 * Auto-completion of command and file names (using `Tab` key)
 * Navigate on the remote file-system (using `cd` command)
-* Upload a file to the server (usig `upload <destination_file_name>` command)
+* Upload a file to the server (using `upload <destination_file_name>` command)
 * Download a file from the server (using `download <file_name>` command)
 
 **WARNING:** THIS SCRIPT IS A SECURITY HOLE. **DO NOT** UPLOAD IT ON A SERVER UNTIL YOU KNOW WHAT YOU ARE DOING!
 
 ![Screenshot](./screenshot.png)
 
+
+**Demo with Docker:**
+
+        docker build -t p0wny .
+        docker run -it -p 8080:80 -d p0wny
+        # open with your browser http://127.0.0.1:8080/shell.php
 
 ## Changelog
 
