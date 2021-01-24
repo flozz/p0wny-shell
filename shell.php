@@ -450,6 +450,20 @@ if (isset($_GET["feature"])) {
                 xhr.send(getQueryString());
             }
 
+            document.onclick = function(event) {
+                event = event || window.event;
+                var selection = window.getSelection();
+                var target = event.target || event.srcElement;
+
+                if (target.tagName === "SELECT") {
+                    return;
+                }
+
+                if (!selection.toString()) {
+                    eShellCmdInput.focus();
+                }
+            };
+
             window.onload = function() {
                 eShellCmdInput = document.getElementById("shell-cmd");
                 eShellContent = document.getElementById("shell-content");
