@@ -23,6 +23,13 @@ p0wny@shell:~# is a very basic, single-file, PHP shell. It can be used to quickl
 
 ## Changelog
 
+* **2021-01-24:**
+  * Style improvements:
+    * Better-looking scrollbar on webkit (@nakamuraos)
+    * Display a smaller logo on mobile (@nakamuraos)
+  * Ergonomic improvements:
+    * Focus the command field when clicking the page (@nakamuraos)
+    * Put the cursor at the end of the command field while navigating the history (@nakamuraos)
 * **2019-06-07:** Adds the `clear` command to clear the terminal (@izharaazmi #12)
 * **2018-12-15:** File upload and download feature (@Oshawk #5)
 * **2018-06-01:**

