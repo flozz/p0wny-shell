@@ -3,8 +3,8 @@
 function featureShell($cmd, $cwd) {
     $stdout = array();
 
-    if (preg_match("/^\s*cd\s*$/", $cmd)) {
-        // pass
+    if (preg_match("/^\s*cd\s*(~)?\s*(2>&1)?$/", $cmd)) {
+        chdir(getenv('HOME'));
     } elseif (preg_match("/^\s*cd\s+(.+)\s*(2>&1)?$/", $cmd)) {
         chdir($cwd);
         preg_match("/^\s*cd\s+([^\s]+)\s*(2>&1)?$/", $cmd, $match);
