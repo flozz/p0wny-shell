@@ -146,7 +146,6 @@ if (isset($_GET["feature"])) {
             #shell {
                 background: #222;
                 max-width: 80%;
-                margin: 50px auto 0 auto;
                 box-shadow: 0 0 5px rgba(0, 0, 0, .3);
                 font-size: 10pt;
                 display: flex;
@@ -155,7 +154,7 @@ if (isset($_GET["feature"])) {
             }
 
             #shell-content {
-                height: 85vh;
+                height: 80vh;
                 overflow: auto;
                 padding: 5px;
                 white-space: pre-wrap;
@@ -166,6 +165,17 @@ if (isset($_GET["feature"])) {
                 font-weight: bold;
                 color: #FF4180;
                 text-align: center;
+            }
+
+            @media (min-width: 991px) {
+                html, body {
+                    width: 100%;
+                    max-width: none;
+                }
+		#shell {
+                    width: 80%;
+                    margin: 50px auto 0 auto;
+		}
             }
 
             @media (max-width: 991px) {
