@@ -178,7 +178,8 @@ if (isset($_GET["feature"])) {
 		}
             }
 
-            @media (max-width: 991px) {
+            @media (max-width: 991px),
+                   (max-height: 600px) {
                 #shell-logo {
                     font-size: 6px;
                     margin: -25px 0;
