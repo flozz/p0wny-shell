@@ -61,27 +61,30 @@ Want to support this project?
 
 ## Changelog
 
-* **2022-09-19:**
+* **v2023.02.13:**
+  * Larger terminal size on large screens (@psyray, #26)
+  * No more horozontal scrolling on small screens (@flozz)
+* **v2022.09.19:**
   * Expand path in `cd` command (`cd ~`, `cd ~username`,...)
   * Go home when running cd withoud argument.
   * → Thanks @FrancoisCapon for the suggestion (#25)
-* **2021-01-24:**
+* **v2021.01.24:**
   * Style improvements:
     * Better-looking scrollbar on webkit (@nakamuraos)
     * Display a smaller logo on mobile (@nakamuraos)
   * Ergonomic improvements:
     * Focus the command field when clicking the page (@nakamuraos)
     * Put the cursor at the end of the command field while navigating the history (@nakamuraos)
-* **2019-06-07:** Adds the `clear` command to clear the terminal (@izharaazmi #12)
-* **2018-12-15:** File upload and download feature (@Oshawk #5)
-* **2018-06-01:**
+* **v2019.06.07:** Adds the `clear` command to clear the terminal (@izharaazmi #12)
+* **v2018.12.15:** File upload and download feature (@Oshawk #5)
+* **v2018.06.01:**
   * Auto-completion of command and file names (@lo001 #2)
   * Adaptation to mobile devices (responsive) (@lo001 #2)
   * Improved handling of stderr (@lo001 #2)
-* **2018-05-30:**
+* **v2018.05.30:**
   * ES5 compatibility (@lo00l #1)
   * Dependency to JQuery removed (@lo00l #1)
   * Command history using arrow keys (@lo00l #1)
   * Keep the command field focused when pressing the tab key
-* **2017-10-30:** CSS: invalid color fixed
-* **2016-11-10:** Initial release
+* **v2017.10.30:** CSS: invalid color fixed
+* **v2016.11.10:** Initial release
