@@ -48,6 +48,15 @@ Please [open an issue](https://github.com/flozz/p0wny-shell/issues) on GitHub wi
 Please consider [filing a bug](https://github.com/flozz/p0wny-shell/issues) before starting to work on a new feature; it will allow us to discuss the best way to do it. It is obviously unnecessary if you just want to fix a typo or small errors in the code.
 
 
+## Support this project
+
+Want to support this project?
+
+* [☕️ Buy me a coffee](https://www.buymeacoffee.com/flozz)
+* [💵️ Give me a tip on PayPal](https://www.paypal.me/0xflozz)
+* [❤️ Sponsor me on GitHub](https://github.com/sponsors/flozz)
+
+
 ## Changelog
 
 * **2022-09-19:**
