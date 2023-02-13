@@ -21,6 +21,33 @@ p0wny@shell:~# is a very basic, single-file, PHP shell. It can be used to quickl
         docker run -it -p 8080:80 -d p0wny
         # open with your browser http://127.0.0.1:8080/shell.php
 
+
+## Contributing
+
+### Questions
+
+If you have any question, you can:
+
+* [Open an issue](https://github.com/flozz/p0wny-shell/issues>) on GitHub
+* [Ask on Discord](https://discord.gg/P77sWhuSs4>) (I am not always available to chat, but I try to answer to everyone)
+
+
+### Bugs
+
+Please [open an issue](https://github.com/flozz/p0wny-shell/issues>) on GitHub with as much information as possible if you found a bug:
+
+* Your operating system / Linux distribution (and its version)
+* The PHP version you are using (example: `PHP-FPM 8.1`, `Apache mod_php 7.4`,...)
+* The Web server you are using and its version (example: `Nginx 1.23`, `Apache 2.4.55`,...)
+* All the logs and message outputted by the software
+* etc.
+
+
+### Pull requests
+
+Please consider [filing a bug](https://github.com/flozz/p0wny-shell/issues>) before starting to work on a new feature; it will allow us to discuss the best way to do it. It is obviously unnecessary if you just want to fix a typo or small errors in the code.
+
+
 ## Changelog
 
 * **2022-09-19:**
