@@ -172,10 +172,10 @@ if (isset($_GET["feature"])) {
                     width: 100%;
                     max-width: none;
                 }
-		#shell {
+                #shell {
                     width: 80%;
                     margin: 50px auto 0 auto;
-		}
+                }
             }
 
             @media (max-width: 991px),
