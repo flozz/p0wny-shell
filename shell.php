@@ -241,6 +241,7 @@ if (isset($_GET["feature"])) {
                 font-size: 10pt;
                 width: 100%;
                 align-self: center;
+                box-sizing: border-box;
             }
 
             #shell-input div {
