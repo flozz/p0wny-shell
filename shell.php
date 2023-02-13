@@ -145,8 +145,7 @@ if (isset($_GET["feature"])) {
 
             #shell {
                 background: #222;
-                max-width: 800px;
-                margin: 50px auto 0 auto;
+                max-width: 80%;
                 box-shadow: 0 0 5px rgba(0, 0, 0, .3);
                 font-size: 10pt;
                 display: flex;
@@ -155,7 +154,7 @@ if (isset($_GET["feature"])) {
             }
 
             #shell-content {
-                height: 500px;
+                height: 80vh;
                 overflow: auto;
                 padding: 5px;
                 white-space: pre-wrap;
@@ -168,7 +167,19 @@ if (isset($_GET["feature"])) {
                 text-align: center;
             }
 
-            @media (max-width: 991px) {
+            @media (min-width: 991px) {
+                html, body {
+                    width: 100%;
+                    max-width: none;
+                }
+                #shell {
+                    width: 80%;
+                    margin: 50px auto 0 auto;
+                }
+            }
+
+            @media (max-width: 991px),
+                   (max-height: 600px) {
                 #shell-logo {
                     font-size: 6px;
                     margin: -25px 0;
@@ -230,6 +241,7 @@ if (isset($_GET["feature"])) {
                 font-size: 10pt;
                 width: 100%;
                 align-self: center;
+                box-sizing: border-box;
             }
 
             #shell-input div {
