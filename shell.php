@@ -125,6 +125,9 @@ if (isset($_GET["feature"])) {
                 background: #333;
                 color: #eee;
                 font-family: monospace;
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
             }
 
             *::-webkit-scrollbar-track {
@@ -145,16 +148,21 @@ if (isset($_GET["feature"])) {
 
             #shell {
                 background: #222;
-                max-width: 80%;
                 box-shadow: 0 0 5px rgba(0, 0, 0, .3);
                 font-size: 10pt;
                 display: flex;
                 flex-direction: column;
                 align-items: stretch;
+                max-width: calc(100vw - 2 * var(--shell-margin));
+                max-height: calc(100vh - 2 * var(--shell-margin));
+                resize: both;
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: var(--shell-margin) auto;
             }
 
             #shell-content {
-                height: 80vh;
                 overflow: auto;
                 padding: 5px;
                 white-space: pre-wrap;
@@ -167,14 +175,13 @@ if (isset($_GET["feature"])) {
                 text-align: center;
             }
 
-            @media (min-width: 991px) {
-                html, body {
-                    width: 100%;
-                    max-width: none;
-                }
-                #shell {
-                    width: 80%;
-                    margin: 50px auto 0 auto;
+            :root {
+                --shell-margin: 25px;
+            }
+
+            @media (min-width: 1200px) {
+                :root {
+                    --shell-margin: 50px !important;
                 }
             }
 
@@ -184,15 +191,11 @@ if (isset($_GET["feature"])) {
                     font-size: 6px;
                     margin: -25px 0;
                 }
-
-                html, body, #shell {
-                    height: 100%;
-                    width: 100%;
-                    max-width: none;
+                :root {
+                    --shell-margin: 0 !important;
                 }
-
                 #shell {
-                    margin-top: 0;
+                    resize: none;
                 }
             }
 
@@ -221,6 +224,7 @@ if (isset($_GET["feature"])) {
                 display: flex;
                 box-shadow: 0 -1px 0 rgba(0, 0, 0, .3);
                 border-top: rgba(255, 255, 255, .05) solid 1px;
+                padding: 10px 0;
             }
 
             #shell-input > label {
