@@ -61,6 +61,8 @@ Want to support this project?
 
 ## Changelog
 
+* **v2023.02.27:**
+  * Make terminal window resizable (@FrancoisCapon, #27)
 * **v2023.02.13:**
   * Larger terminal size on large screens (@psyray, #26)
   * No more horozontal scrolling on small screens (@flozz)
@@ -75,8 +77,10 @@ Want to support this project?
   * Ergonomic improvements:
     * Focus the command field when clicking the page (@nakamuraos)
     * Put the cursor at the end of the command field while navigating the history (@nakamuraos)
-* **v2019.06.07:** Adds the `clear` command to clear the terminal (@izharaazmi #12)
-* **v2018.12.15:** File upload and download feature (@Oshawk #5)
+* **v2019.06.07:**
+  * Adds the `clear` command to clear the terminal (@izharaazmi #12)
+* **v2018.12.15:**
+  * File upload and download feature (@Oshawk #5)
 * **v2018.06.01:**
   * Auto-completion of command and file names (@lo001 #2)
   * Adaptation to mobile devices (responsive) (@lo001 #2)
@@ -86,5 +90,7 @@ Want to support this project?
   * Dependency to JQuery removed (@lo00l #1)
   * Command history using arrow keys (@lo00l #1)
   * Keep the command field focused when pressing the tab key
-* **v2017.10.30:** CSS: invalid color fixed
-* **v2016.11.10:** Initial release
+* **v2017.10.30:**
+  * CSS: invalid color fixed
+* **v2016.11.10:**
+  * Initial release
