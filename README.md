@@ -61,6 +61,8 @@ Want to support this project?
 
 ## Changelog
 
+* **v2023.05.10:**
+  * Try different execution functions (`exec`, `shell_exec`, `system`, `passthru`, `popen`, `proc_open`) to run commands to bypass disabled functions (@cli-ish, #31, #32)
 * **v2023.02.27:**
   * Make terminal window resizable (@FrancoisCapon, #27)
 * **v2023.02.13:**
