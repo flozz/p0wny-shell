@@ -140,7 +140,7 @@ function initShellConfig() {
 
     if (isRunningWindows()) {
         $username = getenv('USERNAME');
-        if ($hostname !== false) {
+        if ($username !== false) {
             $SHELL_CONFIG['username'] = $username;
         }
     } else {
