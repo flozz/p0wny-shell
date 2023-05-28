@@ -61,6 +61,8 @@ Want to support this project?
 
 ## Changelog
 
+* **v2023.05.28:**
+  * Encode all data fields as base64 to avoid encoding errors, especially on Windows (@cli-ish, #8, #35)
 * **v2023.05.22:**
   * Display the username and the hostname in the prompt (@cli-ish, #33, #7)
 * **v2023.05.10:**
