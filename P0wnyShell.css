@@ -1,0 +1,141 @@
+:host {
+    margin: 0;
+    padding: 0;
+    background: #333;
+    color: #eee;
+    font-family: monospace;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+*::-webkit-scrollbar-track {
+    border-radius: 8px;
+    background-color: #353535;
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #bcbcbc;
+}
+
+#shell {
+    background: #222;
+    box-shadow: 0 0 5px rgba(0, 0, 0, .3);
+    font-size: 10pt;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    max-width: calc(100vw - 2 * var(--shell-margin));
+    max-height: calc(100vh - 2 * var(--shell-margin));
+    resize: both;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    margin: var(--shell-margin) auto;
+}
+
+#shell-content {
+    overflow: auto;
+    padding: 5px;
+    white-space: pre-wrap;
+    flex-grow: 1;
+}
+
+#shell-logo {
+    font-weight: bold;
+    color: #FF4180;
+    text-align: center;
+}
+#shell-logo div {
+    text-align: left;
+    display: inline-block;
+}
+
+:root {
+    --shell-margin: 25px;
+}
+
+@media (min-width: 1200px) {
+    :root {
+        --shell-margin: 50px !important;
+    }
+}
+
+@media (max-width: 991px),
+(max-height: 600px) {
+    #shell-logo {
+        font-size: 6px;
+        margin: -25px 0;
+    }
+    :root {
+        --shell-margin: 0 !important;
+    }
+    #shell {
+        resize: none;
+    }
+}
+
+@media (max-width: 767px) {
+    #shell-input {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 320px) {
+    #shell-logo {
+        font-size: 5px;
+    }
+}
+
+.shell-prompt {
+    font-weight: bold;
+    color: #75DF0B;
+}
+
+.shell-prompt > span {
+    color: #1BC9E7;
+}
+
+#shell-input {
+    display: flex;
+    box-shadow: 0 -1px 0 rgba(0, 0, 0, .3);
+    border-top: rgba(255, 255, 255, .05) solid 1px;
+    padding: 10px 0;
+}
+
+#shell-input > label {
+    flex-grow: 0;
+    display: block;
+    padding: 0 5px;
+    height: 30px;
+    line-height: 30px;
+}
+
+#shell-input #shell-cmd {
+    height: 30px;
+    line-height: 30px;
+    border: none;
+    background: transparent;
+    color: #eee;
+    font-family: monospace;
+    font-size: 10pt;
+    width: 100%;
+    align-self: center;
+    box-sizing: border-box;
+}
+
+#shell-input div {
+    flex-grow: 1;
+    align-items: stretch;
+}
+
+#shell-input input {
+    outline: none;
+}
