@@ -1,12 +1,24 @@
 :host {
+    --shell-margin: 25px;
+    --shell-background: #333;
+    --shell-terminal-background: #222;
+    --shell-terminal-color: #eee;
+    --shell-logo-color: #FF4180;
+    --shell-prompt-color: #75DF0B;
+    --shell-path-color: #1BC9E7;
+
     margin: 0;
     padding: 0;
-    background: #333;
-    color: #eee;
+    background: var(--shell-background);
+    color: var(--shell-terminal-color);
     font-family: monospace;
     width: 100%;
     height: 100%;
     overflow: hidden;
+    display: block;
+    container-type: size;
+
+    --calculated-margin: var(--shell-margin);
 }
 
 *::-webkit-scrollbar-track {
@@ -21,24 +33,24 @@
 
 *::-webkit-scrollbar-thumb {
     border-radius: 8px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
     background-color: #bcbcbc;
 }
 
 #shell {
-    background: #222;
+    background: var(--shell-terminal-background);
     box-shadow: 0 0 5px rgba(0, 0, 0, .3);
     font-size: 10pt;
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    max-width: calc(100vw - 2 * var(--shell-margin));
-    max-height: calc(100vh - 2 * var(--shell-margin));
+    max-width: calc(100% - 2 * var(--calculated-margin));
+    max-height: calc(100% - 2 * var(--calculated-margin));
     resize: both;
     overflow: hidden;
     width: 100%;
     height: 100%;
-    margin: var(--shell-margin) auto;
+    margin: var(--calculated-margin) auto;
 }
 
 #shell-content {
@@ -50,45 +62,40 @@
 
 #shell-logo {
     font-weight: bold;
-    color: #FF4180;
+    color: var(--shell-logo-color);
     text-align: center;
 }
+
 #shell-logo div {
     text-align: left;
     display: inline-block;
 }
 
-:root {
-    --shell-margin: 25px;
-}
-
-@media (min-width: 1200px) {
-    :root {
-        --shell-margin: 50px !important;
+@container (min-width: 1200px) {
+    #shell {
+        --calculated-margin: calc(var(--shell-margin) * 2) !important;
     }
 }
 
-@media (max-width: 991px),
-(max-height: 600px) {
+@container (max-width: 991px) or (max-height: 600px) {
     #shell-logo {
         font-size: 6px;
         margin: -25px 0;
     }
-    :root {
-        --shell-margin: 0 !important;
-    }
+
     #shell {
+        --calculated-margin: 0 !important;
         resize: none;
     }
 }
 
-@media (max-width: 767px) {
+@container (max-width: 767px) {
     #shell-input {
         flex-direction: column;
     }
 }
 
-@media (max-width: 320px) {
+@container (max-width: 320px) {
     #shell-logo {
         font-size: 5px;
     }
@@ -96,11 +103,11 @@
 
 .shell-prompt {
     font-weight: bold;
-    color: #75DF0B;
+    color: var(--shell-prompt-color);
 }
 
 .shell-prompt > span {
-    color: #1BC9E7;
+    color: var(--shell-path-color);
 }
 
 #shell-input {
