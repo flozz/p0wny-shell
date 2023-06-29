@@ -22,11 +22,12 @@ class P0wnyShell extends HTMLElement {
     constructor() {
         super();
 
+        // get the base path of the current script
+        const base = document.currentScript.src.substring(0,document.currentScript.src.lastIndexOf('/')+1);
+
         this.eRoot = this.attachShadow({mode: 'open'});
         this.eRoot.innerHTML = `
-            <style>
-                @import "P0wnyShell.css";
-            </style>
+            <link rel="stylesheet" href="${base}P0wnyShell.css" type="text/css" />
             <div id="shell">
                 <pre id="shell-content">
                     <div id="shell-logo"><div><slot></slot></div></div>
