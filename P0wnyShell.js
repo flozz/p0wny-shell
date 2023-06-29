@@ -321,7 +321,7 @@ class P0wnyShell extends HTMLElement {
                     this.eShellCmdInput.value = this.commandHistory[this.historyPosition];
                     this.defer(function () {
                         this.eShellCmdInput.focus();
-                    });
+                    }.bind(this));
                 }
                 break;
             case "ArrowDown":
