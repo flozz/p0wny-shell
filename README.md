@@ -61,6 +61,8 @@ Want to support this project?
 
 ## Changelog
 
+* **v2023.08.10:**
+  * Make p0wny@shell compatible with PHP 5.3 (@FrancoisCapon, #38)
 * **v2023.05.28:**
   * Encode all data fields as base64 to avoid encoding errors, especially on Windows (@cli-ish, #8, #35)
 * **v2023.05.22:**
