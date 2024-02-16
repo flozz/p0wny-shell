@@ -12,7 +12,7 @@ p0wny@shell:~# is a very basic, single-file, PHP shell. It can be used to quickl
 * Upload a file to the server (using `upload <destination_file_name>` command)
 * Download a file from the server (using `download <file_name>` command)
 
-**WARNING:** THIS SCRIPT IS A SECURITY HOLE. **DO NOT** UPLOAD IT ON A SERVER UNTIL YOU KNOW WHAT YOU ARE DOING!
+**WARNING:** THIS SCRIPT IS A SECURITY HOLE. **DO NOT** UPLOAD IT ON A SERVER UNLESS YOU KNOW WHAT YOU ARE DOING!
 
 ![Screenshot](./screenshot.png)
 
