@@ -54,23 +54,19 @@ function executeCommand($cmd) {
         if (!file_exists($file)) {
             $file = "/bin/sh";
         }
-        $commandFile = sys_get_temp_dir()."/".time().".log";
         $resultFile = sys_get_temp_dir()."/".(time()+1).".log";
-        @file_put_contents($commandFile, $cmd);
-        switch (pcntl_fork()) {
-            case 0:
-                $args = array("-c", "$cmd > $resultFile");
-                pcntl_exec($file, $args);
-                exit(0);
-            default:
-                break;
+        $pid = pcntl_fork();
+        if ($pid === 0) {
+            $args = array("-c", "$cmd > $resultFile 2>&1");
+            pcntl_exec($file, $args);
+            exit(0);
+        } else if ($pid !== -1) {
+            pcntl_waitpid($pid, $status);
         }
-        if (!file_exists($resultFile)){
-            sleep(2);
+        if (file_exists($resultFile)) {
+            $output = file_get_contents($resultFile);   
+            @unlink($resultFile);
         }
-        $output = file_get_contents($resultFile);
-        @unlink($commandFile);
-        @unlink($resultFile);
     }
     return $output;
 }
