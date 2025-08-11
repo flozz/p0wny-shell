@@ -19,9 +19,9 @@ p0wny@shell:~# is a very basic, single-file, PHP shell. It can be used to quickl
 
 **Demo with Docker:**
 
-        docker build -t p0wny .
-        docker run -it -p 8080:80 -d p0wny
-        # open with your browser http://127.0.0.1:8080/shell.php
+    docker build -t p0wny .
+    docker run -it -p 8080:8080 -d p0wny
+    # open with your browser http://127.0.0.1:8080/shell.php
 
 
 ## Contributing
